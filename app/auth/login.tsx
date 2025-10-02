@@ -13,7 +13,7 @@ const LoginScreen = () => {
 
   const handleLogin = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login', { // Change to your backend URL
+      const response = await fetch('https://4f4598x0-5000.inc1.devtunnels.ms/api/auth/login', { // Change to your backend URL
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
