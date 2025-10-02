@@ -20,6 +20,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         SplashScreen.preventAutoHideAsync(); // Splash rakho jab tak check ho
         const token = await AsyncStorage.getItem('token');
+        console.log('Token found:', token);
         setIsLoggedIn(!!token);
       } catch (error) {
         console.error('Auth check error', error);

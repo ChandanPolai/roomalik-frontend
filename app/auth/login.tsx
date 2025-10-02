@@ -19,6 +19,7 @@ const LoginScreen = () => {
         body: JSON.stringify({ email, password }),
       });
       const data = await response.json();
+      console.log('Response status:', data);
       if (data.success) {
         await login(data.data.token);
         router.replace('/(tabs)'); // Redirect to main tabs
