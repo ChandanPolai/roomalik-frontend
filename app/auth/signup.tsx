@@ -1,93 +1,98 @@
 // app/auth/signup.tsx
 import React, { useState, useRef } from 'react';
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  TouchableOpacity, 
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
   Keyboard,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../utils/AuthProvider';
+import authApi from '../../services/api/auth.api';
+import { SignupCredentials } from '../../types';
+import '../../global.css';
 
 const SignupScreen = () => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<SignupCredentials>({
     name: '',
     email: '',
     phone: '',
-    password: ''
+    password: '',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  
+
   const { login } = useAuth();
   const router = useRouter();
-  
-  const scrollViewRef = useRef<ScrollView>(null);
-  const emailInputRef = useRef<TextInput>(null);
-  const phoneInputRef = useRef<TextInput>(null);
-  const passwordInputRef = useRef<TextInput>(null);
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({
+  const scrollViewRef = useRef<ScrollView>(null);
+  const emailInputRef = useRef<TextInput>(null) as React.RefObject<TextInput>;
+  const phoneInputRef = useRef<TextInput>(null) as React.RefObject<TextInput>;
+  const passwordInputRef = useRef<TextInput>(null) as React.RefObject<TextInput>;
+
+  const handleInputChange = (field: keyof SignupCredentials, value: string) => {
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
+    // Clear error when user types
+    if (error) setError('');
+  };
+
+  const validateForm = (): boolean => {
+    if (!formData.name || !formData.email || !formData.phone || !formData.password) {
+      setError('Please fill all fields');
+      return false;
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError('Please enter a valid email');
+      return false;
+    }
+
+    // Phone validation (basic)
+    if (formData.phone.length < 10) {
+      setError('Please enter a valid phone number');
+      return false;
+    }
+
+    // Password validation
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters');
+      return false;
+    }
+
+    return true;
   };
 
   const handleSignup = async () => {
-    // Reset error
-    setError('');
-    
-    // Validation
-    if (!formData.name || !formData.email || !formData.phone || !formData.password) {
-      setError('Please fill all fields');
+    if (!validateForm()) {
       return;
     }
 
     setLoading(true);
-    
+    setError('');
+
     try {
-      console.log('Sending signup request...', formData);
-      
-      const response = await fetch('https://4f4598x0-5000.inc1.devtunnels.ms/api/auth/register', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = await authApi.register(formData);
 
-      console.log('Response status:', response.status);
-      
-      const responseText = await response.text();
-      console.log('Response text:', responseText);
-
-      let data;
-      try {
-        data = JSON.parse(responseText);
-      } catch (parseError) {
-        console.error('JSON Parse Error:', parseError);
-        throw new Error('Invalid server response');
-      }
-
-      console.log('Parsed data:', data);
-
-      if (response.ok && data.success) {
-        console.log('Signup successful, logging in...');
-        await login(data.data.token);
+      if (response.success && response.data.token) {
+        await login(response.data.token, response.data.user);
         router.replace('/(tabs)');
       } else {
-        setError(data.error || data.message || 'Signup failed');
+        setError(response.error || response.message || 'Signup failed');
       }
     } catch (err: any) {
       console.error('Signup error:', err);
-      setError(err.message || 'Network error. Please check your connection.');
+      setError(err.message || 'Signup failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -95,7 +100,6 @@ const SignupScreen = () => {
 
   const focusNextField = (nextRef: React.RefObject<TextInput>, offset: number = 50) => {
     nextRef.current?.focus();
-    // Scroll to make sure the input is visible
     setTimeout(() => {
       scrollViewRef.current?.scrollTo({ y: offset, animated: true });
     }, 100);
@@ -103,16 +107,16 @@ const SignupScreen = () => {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         className="flex-1 bg-white"
       >
-        <ScrollView 
+        <ScrollView
           ref={scrollViewRef}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ 
+          contentContainerStyle={{
             flexGrow: 1,
-            paddingVertical: 40 
+            paddingVertical: 40,
           }}
           keyboardShouldPersistTaps="handled"
         >
@@ -185,7 +189,7 @@ const SignupScreen = () => {
                 <TextInput
                   ref={passwordInputRef}
                   className="border border-gray-300 p-4 rounded-xl bg-gray-50 text-gray-800"
-                  placeholder="Create a password"
+                  placeholder="Create a password (min 6 characters)"
                   placeholderTextColor="#9CA3AF"
                   value={formData.password}
                   onChangeText={(value) => handleInputChange('password', value)}

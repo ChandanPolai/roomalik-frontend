@@ -1,60 +1,92 @@
 // utils/AuthProvider.tsx
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as SplashScreen from 'expo-splash-screen';
-
-interface AuthContextType {
-  isLoggedIn: boolean;
-  login: (token: string) => Promise<void>;
-  logout: () => Promise<void>;
-}
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { AuthContextType, User } from '../types';
+import { STORAGE_KEYS } from '../constants/config';
+import storageService from '../services/storage/storage.service';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
 
+  // Check if user is already logged in on mount
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        SplashScreen.preventAutoHideAsync(); // Splash rakho jab tak check ho
-        const token = await AsyncStorage.getItem('token');
-        console.log('Token found:', token);
-        setIsLoggedIn(!!token);
-      } catch (error) {
-        console.error('Auth check error', error);
-      } finally {
-        setIsLoading(false);
-        SplashScreen.hideAsync(); // Splash hide karo after check
-      }
-    };
-    checkAuth();
+    checkAuthStatus();
   }, []);
 
-  const login = async (token: string) => {
-    await AsyncStorage.setItem('token', token);
-    setIsLoggedIn(true);
+  const checkAuthStatus = async () => {
+    try {
+      const savedToken = await storageService.getItem(STORAGE_KEYS.AUTH_TOKEN);
+      const savedUser = await storageService.getObject<User>(STORAGE_KEYS.USER_DATA);
+
+      if (savedToken) {
+        setToken(savedToken);
+        setUser(savedUser);
+        setIsLoggedIn(true);
+      }
+    } catch (error) {
+      console.error('Error checking auth status:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const login = async (authToken: string, userData?: User) => {
+    try {
+      await storageService.setItem(STORAGE_KEYS.AUTH_TOKEN, authToken);
+      
+      if (userData) {
+        await storageService.setObject(STORAGE_KEYS.USER_DATA, userData);
+        setUser(userData);
+      }
+
+      setToken(authToken);
+      setIsLoggedIn(true);
+      console.log('✅ User logged in successfully');
+    } catch (error) {
+      console.error('Login storage error:', error);
+      throw error;
+    }
   };
 
   const logout = async () => {
-    await AsyncStorage.removeItem('token');
-    setIsLoggedIn(false);
+    try {
+      await storageService.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+      await storageService.removeItem(STORAGE_KEYS.USER_DATA);
+      
+      setToken(null);
+      setUser(null);
+      setIsLoggedIn(false);
+      console.log('✅ User logged out successfully');
+    } catch (error) {
+      console.error('Logout error:', error);
+      throw error;
+    }
   };
 
-  if (isLoading) {
-    return null; // Loading ke time kuch nahi dikhaye, splash handle karega
-  }
-
   return (
-    <AuthContext.Provider value={{ isLoggedIn, login, logout }}>
+    <AuthContext.Provider
+      value={{
+        isLoggedIn,
+        isLoading,
+        user,
+        token,
+        login,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => {
+export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within AuthProvider');
+  if (!context) {
+    throw new Error('useAuth must be used within AuthProvider');
+  }
   return context;
 };
