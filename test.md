@@ -99,3 +99,24 @@ frontend/
 ├─ tailwind.config.js
 ├─ test.md
 └─ tsconfig.json
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+okay brother today i want your help in login screen ok 
+i am working on expo react native ok with nativw wnd that' snot my problem i just want a diffrent desgin ok like 
+
+mamatlb ki yaar agagr jaise hi koi textinput box me jaye to scrool hakr screen uper janan chaoye yahah per scrolll ho naho hota he mere hisab se expo ka kuch default api hota he jo esa karta he pleas ekardo and please brother Haptics ka use karo agagr koi 
+buuton per clik akrta he to patata hi nahi chatta he ki kuch hua may be kuch feel viration jaisa ona chiaye naa bhai 
+
+desgin ka aur thodahe naa betetr mughe choaye logi n screen ahhca nahi lag rahah he password me henaa eye balal ek icon rakhso jsise henaa hide and shoew ho pay screen smamajk agyenaa please ..
+
+expo me koi toast use karo yaar please taost dhikna he eoror pe yaar fir succes me ye sab me smamj agyenaa pleasde 
+
+
+
+
+
+
+
+
+

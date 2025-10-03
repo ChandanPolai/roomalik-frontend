@@ -14,8 +14,14 @@ export interface AuthResponse {
   message?: string;
   error?: string;
   data: {
+    id: string;
+    name: string;
+    email: string;
+    phone: string;
+    role: string;
+    avatar?: string;
+    address?: any;
     token: string;
-    user: User;
   };
 }
 
