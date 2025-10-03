@@ -1,23 +1,22 @@
 // app/auth/signup.tsx
-import React, { useState, useRef } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
+import { useRouter } from 'expo-router';
+import React, { useRef, useState } from 'react';
 import {
-  View,
+  ActivityIndicator,
+  Animated,
   Text,
   TextInput,
   TouchableOpacity,
-  ActivityIndicator,
-  Animated,
+  View,
 } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useAuth } from '../../utils/AuthProvider';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import Toast from 'react-native-toast-message';
+import '../../global.css';
 import authApi from '../../services/api/auth.api';
 import { SignupCredentials } from '../../types';
-import * as Haptics from 'expo-haptics';
-import Toast from 'react-native-toast-message';
-import { Ionicons } from '@expo/vector-icons';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { LinearGradient } from 'expo-linear-gradient';
-import '../../global.css';
+import { useAuth } from '../../utils/AuthProvider';
 
 const SignupScreen = () => {
   const [formData, setFormData] = useState<SignupCredentials>({
@@ -26,10 +25,13 @@ const SignupScreen = () => {
     phone: '',
     password: '',
   });
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'login' | 'register'>('register');
 
   const { login } = useAuth();
   const router = useRouter();
@@ -37,12 +39,14 @@ const SignupScreen = () => {
   const emailInputRef = useRef<TextInput>(null);
   const phoneInputRef = useRef<TextInput>(null);
   const passwordInputRef = useRef<TextInput>(null);
+  const confirmPasswordInputRef = useRef<TextInput>(null);
 
   // Animation values
   const nameScale = useRef(new Animated.Value(1)).current;
   const emailScale = useRef(new Animated.Value(1)).current;
   const phoneScale = useRef(new Animated.Value(1)).current;
   const passwordScale = useRef(new Animated.Value(1)).current;
+  const confirmPasswordScale = useRef(new Animated.Value(1)).current;
 
   const handleInputChange = (field: keyof SignupCredentials, value: string) => {
     setFormData((prev) => ({
@@ -62,6 +66,7 @@ const SignupScreen = () => {
       case 'email': scale = emailScale; break;
       case 'phone': scale = phoneScale; break;
       case 'password': scale = passwordScale; break;
+      case 'confirmPassword': scale = confirmPasswordScale; break;
       default: return;
     }
     
@@ -80,6 +85,7 @@ const SignupScreen = () => {
       case 'email': scale = emailScale; break;
       case 'phone': scale = phoneScale; break;
       case 'password': scale = passwordScale; break;
+      case 'confirmPassword': scale = confirmPasswordScale; break;
       default: return;
     }
     
@@ -92,6 +98,11 @@ const SignupScreen = () => {
   const togglePasswordVisibility = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setShowPassword(!showPassword);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setShowConfirmPassword(!showConfirmPassword);
   };
 
   const validateForm = (): boolean => {
@@ -151,6 +162,17 @@ const SignupScreen = () => {
       return false;
     }
 
+    if (formData.password !== confirmPassword) {
+      Toast.show({
+        type: 'error',
+        text1: 'Password Mismatch',
+        text2: 'Passwords do not match',
+        position: 'top',
+      });
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      return false;
+    }
+
     return true;
   };
 
@@ -170,7 +192,6 @@ const SignupScreen = () => {
       if (response.success && response.data) {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         
-        // Extract user data and token from response
         const userData = {
           id: response.data.id,
           name: response.data.name,
@@ -220,66 +241,13 @@ const SignupScreen = () => {
       case 'email': return emailScale;
       case 'phone': return phoneScale;
       case 'password': return passwordScale;
+      case 'confirmPassword': return confirmPasswordScale;
       default: return nameScale;
     }
   };
 
-  const renderInputField = (
-    field: keyof SignupCredentials,
-    icon: string,
-    placeholder: string,
-    keyboardType: any = 'default',
-    ref?: React.RefObject<TextInput>,
-    nextRef?: React.RefObject<TextInput>,
-    isPassword = false
-  ) => (
-    <View className="mb-5">
-      <Text className="text-gray-700 mb-2 font-semibold text-base capitalize">
-        {field === 'phone' ? 'Phone Number' : field}
-      </Text>
-      <Animated.View style={{ transform: [{ scale: getScaleForField(field) }] }}>
-        <View
-          className={`flex-row items-center border-2 rounded-xl bg-gray-50 px-4 ${
-            focusedField === field ? 'border-blue-500' : 'border-gray-200'
-          }`}
-        >
-          <Ionicons
-            name={icon as any}
-            size={20}
-            color={focusedField === field ? '#3B82F6' : '#9CA3AF'}
-          />
-          <TextInput
-            ref={ref}
-            className="flex-1 p-4 text-gray-800 text-base"
-            placeholder={placeholder}
-            placeholderTextColor="#9CA3AF"
-            value={formData[field]}
-            onChangeText={(value) => handleInputChange(field, value)}
-            keyboardType={keyboardType}
-            autoCapitalize={field === 'email' ? 'none' : 'words'}
-            returnKeyType={nextRef ? 'next' : 'done'}
-            onSubmitEditing={() => nextRef ? nextRef.current?.focus() : handleSignup()}
-            blurOnSubmit={!nextRef}
-            onFocus={() => handleFocus(field)}
-            onBlur={() => handleBlur(field)}
-            secureTextEntry={isPassword && !showPassword}
-          />
-          {isPassword && (
-            <TouchableOpacity onPress={togglePasswordVisibility} className="p-2">
-              <Ionicons
-                name={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                size={22}
-                color="#9CA3AF"
-              />
-            </TouchableOpacity>
-          )}
-        </View>
-      </Animated.View>
-    </View>
-  );
-
   return (
-    <View className="flex-1 bg-gradient-to-br from-indigo-50 to-purple-100">
+    <View className="flex-1 bg-white">
       <KeyboardAwareScrollView
         contentContainerStyle={{ flexGrow: 1 }}
         enableOnAndroid={true}
@@ -288,82 +256,284 @@ const SignupScreen = () => {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <View className="flex-1 justify-center px-6 py-10">
+        <View className="flex-1 px-6 pt-16 pb-8">
           {/* Header */}
-          <View className="items-center mb-8">
-            <View className="bg-indigo-500 rounded-full p-6 mb-6 shadow-lg">
-              <Ionicons name="person-add" size={48} color="white" />
-            </View>
-            <Text className="text-4xl font-bold text-gray-800 mb-2">
-              Create Account
+          <View className="mb-8">
+            <Text className="text-3xl font-bold text-gray-900 mb-2">
+              Create an account
             </Text>
-            <Text className="text-gray-600 text-center text-base">
-              Join RoomMalik and find your perfect room
+            <Text className="text-gray-500 text-base mt-1">
+              Already have an account? <Text className="text-blue-500 font-semibold">Login</Text>
             </Text>
           </View>
 
-          {/* Form Container */}
-          <View className="bg-white rounded-3xl p-6 shadow-2xl">
-            {renderInputField('name', 'person-outline', 'Enter your full name', 'default', undefined, emailInputRef)}
-            {renderInputField('email', 'mail-outline', 'Enter your email', 'email-address', emailInputRef, phoneInputRef)}
-            {renderInputField('phone', 'call-outline', 'Enter your phone number', 'phone-pad', phoneInputRef, passwordInputRef)}
-            {renderInputField('password', 'lock-closed-outline', 'Create a password (min 6 chars)', 'default', passwordInputRef, undefined, true)}
-
-            {/* Signup Button */}
+          {/* Tab Switcher */}
+          <View className="flex-row mb-8 bg-gray-100 rounded-full p-1">
             <TouchableOpacity
-              className={`bg-gradient-to-r from-indigo-500 to-purple-600 p-4 rounded-xl shadow-lg mb-4 ${
-                loading ? 'opacity-70' : 'opacity-100'
+              className={`flex-1 py-3 rounded-full ${
+                activeTab === 'login' ? 'bg-blue-500' : 'bg-transparent'
               }`}
-              onPress={handleSignup}
-              disabled={loading}
-              activeOpacity={0.8}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                router.push('/auth/login');
+              }}
+              activeOpacity={0.7}
             >
-              {loading ? (
-                <View className="flex-row justify-center items-center">
-                  <ActivityIndicator color="white" size="small" />
-                  <Text className="text-white font-bold ml-3 text-lg">
-                    Creating Account...
-                  </Text>
-                </View>
-              ) : (
-                <View className="flex-row justify-center items-center">
-                  <Text className="text-white font-bold text-lg">
-                    Create Account
-                  </Text>
-                  <Ionicons name="arrow-forward" size={20} color="white" />
-                </View>
-              )}
+              <Text
+                className={`text-center font-semibold text-base ${
+                  activeTab === 'login' ? 'text-white' : 'text-gray-600'
+                }`}
+              >
+                Login
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              className={`flex-1 py-3 rounded-full ${
+                activeTab === 'register' ? 'bg-blue-500' : 'bg-transparent'
+              }`}
+              onPress={() => {
+                setActiveTab('register');
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              }}
+              activeOpacity={0.7}
+            >
+              <Text
+                className={`text-center font-semibold text-base ${
+                  activeTab === 'register' ? 'text-white' : 'text-gray-600'
+                }`}
+              >
+                Register
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Full Name Input */}
+          <View className="mb-5">
+            <Text className="text-gray-700 mb-2 font-medium text-sm">
+              Full Name
+            </Text>
+            <Animated.View style={{ transform: [{ scale: nameScale }] }}>
+              <TextInput
+                className={`bg-gray-50 border ${
+                  focusedField === 'name' ? 'border-blue-500' : 'border-gray-200'
+                } rounded-xl px-4 py-4 text-gray-800 text-base`}
+                placeholder="Fendih Hassan"
+                placeholderTextColor="#9CA3AF"
+                value={formData.name}
+                onChangeText={(value) => handleInputChange('name', value)}
+                autoCapitalize="words"
+                returnKeyType="next"
+                onSubmitEditing={() => emailInputRef.current?.focus()}
+                blurOnSubmit={false}
+                onFocus={() => handleFocus('name')}
+                onBlur={() => handleBlur('name')}
+              />
+            </Animated.View>
+          </View>
+
+          {/* Email Input */}
+          <View className="mb-5">
+            <Text className="text-gray-700 mb-2 font-medium text-sm">
+              Email
+            </Text>
+            <Animated.View style={{ transform: [{ scale: emailScale }] }}>
+              <TextInput
+                ref={emailInputRef}
+                className={`bg-gray-50 border ${
+                  focusedField === 'email' ? 'border-blue-500' : 'border-gray-200'
+                } rounded-xl px-4 py-4 text-gray-800 text-base`}
+                placeholder="fendihil@gmail.com"
+                placeholderTextColor="#9CA3AF"
+                value={formData.email}
+                onChangeText={(value) => handleInputChange('email', value)}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                returnKeyType="next"
+                onSubmitEditing={() => phoneInputRef.current?.focus()}
+                blurOnSubmit={false}
+                onFocus={() => handleFocus('email')}
+                onBlur={() => handleBlur('email')}
+              />
+            </Animated.View>
+          </View>
+
+          {/* Phone Input */}
+          <View className="mb-5">
+            <Text className="text-gray-700 mb-2 font-medium text-sm">
+              Phone Number
+            </Text>
+            <Animated.View style={{ transform: [{ scale: phoneScale }] }}>
+              <TextInput
+                ref={phoneInputRef}
+                className={`bg-gray-50 border ${
+                  focusedField === 'phone' ? 'border-blue-500' : 'border-gray-200'
+                } rounded-xl px-4 py-4 text-gray-800 text-base`}
+                placeholder="1234567890"
+                placeholderTextColor="#9CA3AF"
+                value={formData.phone}
+                onChangeText={(value) => handleInputChange('phone', value)}
+                keyboardType="phone-pad"
+                returnKeyType="next"
+                onSubmitEditing={() => passwordInputRef.current?.focus()}
+                blurOnSubmit={false}
+                onFocus={() => handleFocus('phone')}
+                onBlur={() => handleBlur('phone')}
+              />
+            </Animated.View>
+          </View>
+
+          {/* Password Input */}
+          <View className="mb-5">
+            <Text className="text-gray-700 mb-2 font-medium text-sm">
+              Password
+            </Text>
+            <Animated.View style={{ transform: [{ scale: passwordScale }] }}>
+              <View className="relative">
+                <TextInput
+                  ref={passwordInputRef}
+                  className={`bg-gray-50 border ${
+                    focusedField === 'password' ? 'border-blue-500' : 'border-gray-200'
+                  } rounded-xl px-4 py-4 text-gray-800 text-base pr-12`}
+                  placeholder="••••••••"
+                  placeholderTextColor="#9CA3AF"
+                  value={formData.password}
+                  onChangeText={(value) => handleInputChange('password', value)}
+                  secureTextEntry={!showPassword}
+                  returnKeyType="next"
+                  onSubmitEditing={() => confirmPasswordInputRef.current?.focus()}
+                  blurOnSubmit={false}
+                  onFocus={() => handleFocus('password')}
+                  onBlur={() => handleBlur('password')}
+                />
+                <TouchableOpacity
+                  onPress={togglePasswordVisibility}
+                  className="absolute right-4 top-4"
+                  style={{ padding: 4 }}
+                >
+                  <Ionicons
+                    name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                    size={22}
+                    color="#9CA3AF"
+                  />
+                </TouchableOpacity>
+              </View>
+            </Animated.View>
+          </View>
+
+          {/* Confirm Password Input */}
+          <View className="mb-6">
+            <Text className="text-gray-700 mb-2 font-medium text-sm">
+              Confirm Password
+            </Text>
+            <Animated.View style={{ transform: [{ scale: confirmPasswordScale }] }}>
+              <View className="relative">
+                <TextInput
+                  ref={confirmPasswordInputRef}
+                  className={`bg-gray-50 border ${
+                    focusedField === 'confirmPassword' ? 'border-blue-500' : 'border-gray-200'
+                  } rounded-xl px-4 py-4 text-gray-800 text-base pr-12`}
+                  placeholder="••••••••"
+                  placeholderTextColor="#9CA3AF"
+                  value={confirmPassword}
+                  onChangeText={(value) => {
+                    setConfirmPassword(value);
+                    if (error) setError('');
+                  }}
+                  secureTextEntry={!showConfirmPassword}
+                  returnKeyType="done"
+                  onSubmitEditing={handleSignup}
+                  onFocus={() => handleFocus('confirmPassword')}
+                  onBlur={() => handleBlur('confirmPassword')}
+                />
+                <TouchableOpacity
+                  onPress={toggleConfirmPasswordVisibility}
+                  className="absolute right-4 top-4"
+                  style={{ padding: 4 }}
+                >
+                  <Ionicons
+                    name={showConfirmPassword ? 'eye-off-outline' : 'eye-outline'}
+                    size={22}
+                    color="#9CA3AF"
+                  />
+                </TouchableOpacity>
+              </View>
+            </Animated.View>
+          </View>
+
+          {/* Create Account Button */}
+          <TouchableOpacity
+            className={`bg-blue-500 py-4 rounded-full shadow-md mb-6 ${
+              loading ? 'opacity-70' : 'opacity-100'
+            }`}
+            onPress={handleSignup}
+            disabled={loading}
+            activeOpacity={0.8}
+          >
+            {loading ? (
+              <View className="flex-row justify-center items-center">
+                <ActivityIndicator color="white" size="small" />
+                <Text className="text-white font-semibold ml-3 text-base">
+                  Creating Account...
+                </Text>
+              </View>
+            ) : (
+              <Text className="text-white font-semibold text-center text-base">
+                Create account
+              </Text>
+            )}
+          </TouchableOpacity>
+
+          {/* Divider */}
+          <View className="flex-row items-center mb-6">
+            <View className="flex-1 h-px bg-gray-300" />
+            <Text className="mx-4 text-gray-400 text-sm">or continue with</Text>
+            <View className="flex-1 h-px bg-gray-300" />
+          </View>
+
+          {/* Social Login Buttons */}
+          <View className="flex-row justify-center space-x-4">
+            <TouchableOpacity
+              className="bg-white border border-gray-200 rounded-xl p-4 flex-1 mr-3 shadow-sm"
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                Toast.show({
+                  type: 'info',
+                  text1: 'Coming Soon',
+                  text2: 'Google signup will be available soon',
+                  position: 'top',
+                });
+              }}
+              activeOpacity={0.7}
+            >
+              <View className="flex-row items-center justify-center">
+                <Ionicons name="logo-google" size={20} color="#DB4437" />
+                <Text className="ml-2 text-gray-700 font-medium text-sm">
+                  Google
+                </Text>
+              </View>
             </TouchableOpacity>
 
-            {/* Divider */}
-            <View className="flex-row items-center my-6">
-              <View className="flex-1 h-px bg-gray-300" />
-              <Text className="mx-4 text-gray-500 font-medium">OR</Text>
-              <View className="flex-1 h-px bg-gray-300" />
-            </View>
-
-            {/* Login Link */}
-            <View className="flex-row justify-center items-center">
-              <Text className="text-gray-600 text-base">
-                Already have an account?{' '}
-              </Text>
-              <TouchableOpacity
-                onPress={() => {
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  router.push('/auth/login');
-                }}
-              >
-                <Text className="text-indigo-500 font-bold text-base">
-                  Sign In
+            <TouchableOpacity
+              className="bg-white border border-gray-200 rounded-xl p-4 flex-1 shadow-sm"
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                Toast.show({
+                  type: 'info',
+                  text1: 'Coming Soon',
+                  text2: 'Apple signup will be available soon',
+                  position: 'top',
+                });
+              }}
+              activeOpacity={0.7}
+            >
+              <View className="flex-row items-center justify-center">
+                <Ionicons name="logo-apple" size={20} color="#000" />
+                <Text className="ml-2 text-gray-700 font-medium text-sm">
+                  Apple
                 </Text>
-              </TouchableOpacity>
-            </View>
+              </View>
+            </TouchableOpacity>
           </View>
-
-          {/* Footer */}
-          <Text className="text-center text-gray-500 mt-8 text-sm">
-            By signing up, you agree to our Terms & Privacy Policy
-          </Text>
         </View>
       </KeyboardAwareScrollView>
 
