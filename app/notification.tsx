@@ -2,48 +2,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-// Dummy notification data
-const notifications = [
-  {
-    id: '1',
-    title: 'Payment Received',
-    message: 'Room 101 rent payment received successfully',
-    time: '2 hours ago',
-    read: false,
-    icon: 'wallet',
-    iconColor: '#10B981',
-  },
-  {
-    id: '2',
-    title: 'New Tenant Added',
-    message: 'John Doe has been added to Room 203',
-    time: '5 hours ago',
-    read: false,
-    icon: 'person-add',
-    iconColor: '#3B82F6',
-  },
-  {
-    id: '3',
-    title: 'Maintenance Request',
-    message: 'Room 105 - AC repair requested',
-    time: '1 day ago',
-    read: true,
-    icon: 'build',
-    iconColor: '#F59E0B',
-  },
-  {
-    id: '4',
-    title: 'Payment Due',
-    message: 'Room 302 rent payment is due tomorrow',
-    time: '2 days ago',
-    read: true,
-    icon: 'alert-circle',
-    iconColor: '#EF4444',
-  },
-];
 
 const NotificationScreen = () => {
   const navigation = useNavigation();
@@ -91,24 +51,15 @@ const NotificationScreen = () => {
           
           <Text style={styles.headerTitle}>Notifications</Text>
           
-          <TouchableOpacity style={styles.markAllButton}>
-            <Text style={styles.markAllText}>Mark all read</Text>
-          </TouchableOpacity>
+          {/* Empty View for spacing - Mark All Read removed */}
+          <View style={styles.placeholder} />
         </View>
       </SafeAreaView>
 
       {/* Content Area */}
-      <View style={styles.container}>
-        {/* Notifications List */}
-        {notifications.length > 0 ? (
-          <FlatList
-            data={notifications}
-            renderItem={renderNotificationItem}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={styles.listContainer}
-            showsVerticalScrollIndicator={false}
-          />
-        ) : (
+      <SafeAreaView style={styles.contentSafeArea} edges={['left', 'right', 'bottom']}>
+        <View style={styles.container}>
+          {/* Empty State - No notifications */}
           <View style={styles.emptyContainer}>
             <Ionicons name="notifications-off-outline" size={80} color="#D1D5DB" />
             <Text style={styles.emptyText}>No notifications yet</Text>
@@ -116,8 +67,8 @@ const NotificationScreen = () => {
               We'll notify you when something new arrives
             </Text>
           </View>
-        )}
-      </View>
+        </View>
+      </SafeAreaView>
     </View>
   );
 };
@@ -125,10 +76,14 @@ const NotificationScreen = () => {
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
-    backgroundColor: '#3B82F6', // Header ka color top me bhi
+    backgroundColor: '#3B82F6',
   },
   headerSafeArea: {
     backgroundColor: '#3B82F6',
+  },
+  contentSafeArea: {
+    flex: 1,
+    backgroundColor: '#F9FAFB',
   },
   container: {
     flex: 1,
@@ -141,11 +96,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#3B82F6',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
   },
   backButton: {
     padding: 4,
@@ -157,16 +107,8 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
   },
-  markAllButton: {
-    padding: 4,
-  },
-  markAllText: {
-    color: '#FFFFFF',
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  listContainer: {
-    padding: 16,
+  placeholder: {
+    width: 24, // Back button ke equal width for balance
   },
   notificationCard: {
     backgroundColor: '#FFFFFF',
