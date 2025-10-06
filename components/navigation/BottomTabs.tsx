@@ -1,13 +1,20 @@
 // components/navigation/BottomTabs.tsx
 import { Ionicons } from '@expo/vector-icons';
-import { Tabs } from 'expo-router';
+import { DrawerActions, useNavigation } from '@react-navigation/native';
+import { Tabs, useRouter } from 'expo-router';
 import React from 'react';
-import { Platform } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const BottomTabs = () => {
   const insets = useSafeAreaInsets();
-  
+  const navigation = useNavigation();
+  const router = useRouter();
+
+  const openDrawer = () => {
+    navigation.dispatch(DrawerActions.openDrawer());
+  };
+
   return (
     <Tabs
       screenOptions={{
@@ -17,29 +24,33 @@ const BottomTabs = () => {
           backgroundColor: '#FFFFFF',
           borderTopWidth: 1,
           borderTopColor: '#E5E7EB',
-          height: 60 + insets.bottom, // Safe area bottom add kiya
-          paddingBottom: insets.bottom, // Safe area padding
+          height: 60 + insets.bottom,
+          paddingBottom: insets.bottom,
           paddingTop: 8,
         },
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: '600',
-          marginBottom: Platform.OS === 'ios' ? 0 : 8,
         },
-        tabBarIconStyle: {
-          marginTop: 4,
-        },
-        headerShown: true,
+        headerShown: true, // Header show karo
         headerStyle: {
           backgroundColor: '#3B82F6',
         },
         headerTintColor: '#FFFFFF',
         headerTitleStyle: {
           fontWeight: 'bold',
+          fontSize: 20,
         },
+        headerLeft: () => (
+          <TouchableOpacity
+            onPress={openDrawer}
+            style={{ marginLeft: 16 }}
+          >
+            <Ionicons name="person-circle-outline" size={32} color="#FFFFFF" />
+          </TouchableOpacity>
+        ),
       }}
     >
-      {/* Home Tab */}
       <Tabs.Screen
         name="(tabs)/index"
         options={{
@@ -49,8 +60,6 @@ const BottomTabs = () => {
           ),
         }}
       />
-
-      {/* Rooms Tab */}
       <Tabs.Screen
         name="rooms"
         options={{
@@ -60,8 +69,6 @@ const BottomTabs = () => {
           ),
         }}
       />
-
-      {/* Payment Tab */}
       <Tabs.Screen
         name="payment"
         options={{
@@ -71,8 +78,6 @@ const BottomTabs = () => {
           ),
         }}
       />
-
-      {/* Tenants Tab */}
       <Tabs.Screen
         name="tenants"
         options={{
@@ -82,26 +87,9 @@ const BottomTabs = () => {
           ),
         }}
       />
-
-      {/* Hide unwanted screens from tabs */}
-      <Tabs.Screen
-        name="profile"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="auth/login"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="auth/signup"
-        options={{
-          href: null,
-        }}
-      />
+      <Tabs.Screen name="profile" options={{ href: null }} />
+      <Tabs.Screen name="auth/login" options={{ href: null }} />
+      <Tabs.Screen name="auth/signup" options={{ href: null }} />
     </Tabs>
   );
 };
