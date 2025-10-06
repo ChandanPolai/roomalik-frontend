@@ -1,8 +1,6 @@
 // components/navigation/DrawerNavigator.tsx
-import React from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import { Ionicons } from '@expo/vector-icons';
-import { TouchableOpacity } from 'react-native';
+import React from 'react';
 import BottomTabs from './BottomTabs';
 import CustomDrawer from './CustomDrawer';
 
