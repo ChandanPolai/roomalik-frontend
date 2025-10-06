@@ -93,11 +93,12 @@ const CustomDrawer = (props: any) => {
         </View>
       </DrawerContentScrollView>
 
-      {/* Logout Confirmation Modal */}
+      {/* Logout Confirmation Modal - FIXED BACKGROUND */}
       <Modal
         visible={showLogoutModal}
         transparent={true}
         animationType="fade"
+        statusBarTranslucent={true}
         onRequestClose={() => setShowLogoutModal(false)}
       >
         <View style={styles.modalOverlay}>
@@ -203,10 +204,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginLeft: 6,
   },
-  // Modal Styles
+  // Modal Styles - FIXED
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)', // Darker overlay
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
