@@ -1,10 +1,11 @@
 // app/_layout.tsx
+import { Stack } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Stack, Tabs } from 'expo-router';
-import { AuthProvider, useAuth } from '../utils/AuthProvider';
-import { Ionicons } from '@expo/vector-icons';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import LoadingScreen from '../components/common/LoadingScreen';
+import BottomTabs from '../components/navigation/BottomTabs';
 import { SPLASH_SCREEN_DURATION } from '../constants/config';
+import { AuthProvider, useAuth } from '../utils/AuthProvider';
 
 // Auth Stack for Login/Signup
 const AuthStack = () => (
@@ -12,73 +13,6 @@ const AuthStack = () => (
     <Stack.Screen name="auth/login" />
     <Stack.Screen name="auth/signup" />
   </Stack>
-);
-
-// Main Tabs for authenticated users
-const MainTabs = () => (
-  <Tabs
-    screenOptions={{
-      tabBarActiveTintColor: '#3B82F6',
-      tabBarInactiveTintColor: '#9CA3AF',
-      tabBarStyle: {
-        backgroundColor: '#FFFFFF',
-        borderTopWidth: 1,
-        borderTopColor: '#E5E7EB',
-        height: 60,
-        paddingBottom: 8,
-        paddingTop: 8,
-      },
-      tabBarLabelStyle: {
-        fontSize: 12,
-        fontWeight: '600',
-      },
-      headerShown: true,
-      headerStyle: {
-        backgroundColor: '#3B82F6',
-      },
-      headerTintColor: '#FFFFFF',
-      headerTitleStyle: {
-        fontWeight: 'bold',
-      },
-    }}
-  >
-    <Tabs.Screen
-      name="(tabs)/index"
-      options={{
-        title: 'Home',
-        tabBarIcon: ({ color, size }) => (
-          <Ionicons name="home" size={size} color={color} />
-        ),
-      }}
-    />
-    <Tabs.Screen
-      name="rooms"
-      options={{
-        title: 'Rooms',
-        tabBarIcon: ({ color, size }) => (
-          <Ionicons name="bed" size={size} color={color} />
-        ),
-      }}
-    />
-    <Tabs.Screen
-      name="payment"
-      options={{
-        title: 'Payment',
-        tabBarIcon: ({ color, size }) => (
-          <Ionicons name="wallet" size={size} color={color} />
-        ),
-      }}
-    />
-    <Tabs.Screen
-      name="tenants"
-      options={{
-        title: 'Tenants',
-        tabBarIcon: ({ color, size }) => (
-          <Ionicons name="people" size={size} color={color} />
-        ),
-      }}
-    />
-  </Tabs>
 );
 
 // Root Layout Navigator
@@ -94,20 +28,19 @@ const RootLayoutNavigator = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Show splash screen
   if (showSplash || isLoading) {
     return <LoadingScreen />;
   }
 
-  // Show Auth Stack or Main Tabs based on login status
-  return isLoggedIn ? <MainTabs /> : <AuthStack />;
+  return isLoggedIn ? <BottomTabs /> : <AuthStack />;
 };
 
-// Root Export with AuthProvider
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <RootLayoutNavigator />
-    </AuthProvider>
+    <SafeAreaProvider>
+      <AuthProvider>
+        <RootLayoutNavigator />
+      </AuthProvider>
+    </SafeAreaProvider>
   );
 }
