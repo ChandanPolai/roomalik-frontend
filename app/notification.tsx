@@ -64,7 +64,7 @@ const NotificationScreen = () => {
             <Ionicons name="notifications-off-outline" size={80} color="#D1D5DB" />
             <Text style={styles.emptyText}>No notifications yet</Text>
             <Text style={styles.emptySubText}>
-              We'll notify you when something new arrives
+              Well notify you when something new arrives
             </Text>
           </View>
         </View>
