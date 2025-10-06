@@ -1,18 +1,22 @@
 // components/navigation/BottomTabs.tsx
 import { Ionicons } from '@expo/vector-icons';
 import { DrawerActions, useNavigation } from '@react-navigation/native';
-import { Tabs, useRouter } from 'expo-router';
+import { Tabs } from 'expo-router';
 import React from 'react';
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const BottomTabs = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
-  const router = useRouter();
 
   const openDrawer = () => {
     navigation.dispatch(DrawerActions.openDrawer());
+  };
+
+  const openNotifications = () => {
+    // @ts-ignore
+    navigation.navigate('NotificationScreen');
   };
 
   return (
@@ -32,7 +36,7 @@ const BottomTabs = () => {
           fontSize: 12,
           fontWeight: '600',
         },
-        headerShown: true, // Header show karo
+        headerShown: true,
         headerStyle: {
           backgroundColor: '#3B82F6',
         },
@@ -47,6 +51,32 @@ const BottomTabs = () => {
             style={{ marginLeft: 16 }}
           >
             <Ionicons name="person-circle-outline" size={32} color="#FFFFFF" />
+          </TouchableOpacity>
+        ),
+        headerRight: () => (
+          <TouchableOpacity
+            onPress={openNotifications}
+            style={{ marginRight: 16, position: 'relative' }}
+          >
+            <Ionicons name="notifications-outline" size={28} color="#FFFFFF" />
+            {/* Notification Badge (optional - shows unread count) */}
+            <View
+              style={{
+                position: 'absolute',
+                right: -2,
+                top: -2,
+                backgroundColor: '#EF4444',
+                borderRadius: 10,
+                width: 20,
+                height: 20,
+                justifyContent: 'center',
+                alignItems: 'center',
+                borderWidth: 2,
+                borderColor: '#3B82F6',
+              }}
+            >
+              <Ionicons name="ellipse" size={8} color="#FFFFFF" />
+            </View>
           </TouchableOpacity>
         ),
       }}
