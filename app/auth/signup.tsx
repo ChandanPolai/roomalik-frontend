@@ -2,7 +2,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Animated,
@@ -58,7 +58,6 @@ const SignupScreen = () => {
 
   const handleFocus = (field: string) => {
     setFocusedField(field);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     
     let scale;
     switch (field) {
@@ -96,12 +95,10 @@ const SignupScreen = () => {
   };
 
   const togglePasswordVisibility = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setShowPassword(!showPassword);
   };
 
   const toggleConfirmPasswordVisibility = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setShowConfirmPassword(!showConfirmPassword);
   };
 
@@ -260,10 +257,13 @@ const SignupScreen = () => {
           {/* Header */}
           <View className="mb-8">
             <Text className="text-3xl font-bold text-gray-900 mb-2">
-              Create an account
+              Join RoomMalik
+            </Text>
+            <Text className="text-3xl font-bold text-gray-900 mb-2">
+              Application
             </Text>
             <Text className="text-gray-500 text-base mt-1">
-              Already have an account? <Text className="text-blue-500 font-semibold">Login</Text>
+              Create your account
             </Text>
           </View>
 
@@ -274,7 +274,6 @@ const SignupScreen = () => {
                 activeTab === 'login' ? 'bg-blue-500' : 'bg-transparent'
               }`}
               onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 router.push('/auth/login');
               }}
               activeOpacity={0.7}
@@ -293,7 +292,6 @@ const SignupScreen = () => {
               }`}
               onPress={() => {
                 setActiveTab('register');
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               }}
               activeOpacity={0.7}
             >
@@ -495,7 +493,6 @@ const SignupScreen = () => {
             <TouchableOpacity
               className="bg-white border border-gray-200 rounded-xl p-4 flex-1 mr-3 shadow-sm"
               onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 Toast.show({
                   type: 'info',
                   text1: 'Coming Soon',
@@ -516,7 +513,6 @@ const SignupScreen = () => {
             <TouchableOpacity
               className="bg-white border border-gray-200 rounded-xl p-4 flex-1 shadow-sm"
               onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 Toast.show({
                   type: 'info',
                   text1: 'Coming Soon',

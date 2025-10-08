@@ -1,26 +1,22 @@
 // app/auth/login.tsx
-import React, { useState, useRef } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
+import { useRouter } from 'expo-router';
+import { useRef, useState } from 'react';
 import {
-  View,
+  ActivityIndicator,
+  Animated,
   Text,
   TextInput,
   TouchableOpacity,
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  Keyboard,
-  Animated,
+  View
 } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useAuth } from '../../utils/AuthProvider';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import Toast from 'react-native-toast-message';
+import '../../global.css';
 import authApi from '../../services/api/auth.api';
 import { LoginCredentials } from '../../types';
-import * as Haptics from 'expo-haptics';
-import Toast from 'react-native-toast-message';
-import { Ionicons } from '@expo/vector-icons';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { LinearGradient } from 'expo-linear-gradient';
-import '../../global.css';
+import { useAuth } from '../../utils/AuthProvider';
 
 const LoginScreen = () => {
   const [formData, setFormData] = useState<LoginCredentials>({
@@ -51,7 +47,6 @@ const LoginScreen = () => {
 
   const handleFocus = (field: string) => {
     setFocusedField(field);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     
     const scale = field === 'email' ? emailScale : passwordScale;
     Animated.spring(scale, {
@@ -71,7 +66,6 @@ const LoginScreen = () => {
   };
 
   const togglePasswordVisibility = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setShowPassword(!showPassword);
   };
 
@@ -187,7 +181,6 @@ const LoginScreen = () => {
               }`}
               onPress={() => {
                 setActiveTab('login');
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               }}
               activeOpacity={0.7}
             >
@@ -204,7 +197,6 @@ const LoginScreen = () => {
                 activeTab === 'register' ? 'bg-blue-500' : 'bg-transparent'
               }`}
               onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 router.push('/auth/signup');
               }}
               activeOpacity={0.7}
@@ -285,7 +277,6 @@ const LoginScreen = () => {
           <TouchableOpacity
             className="items-end mb-6"
             onPress={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               Toast.show({
                 type: 'info',
                 text1: 'Coming Soon',
@@ -334,7 +325,6 @@ const LoginScreen = () => {
             <TouchableOpacity
               className="bg-white border border-gray-200 rounded-xl p-4 flex-1 mr-3 shadow-sm"
               onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 Toast.show({
                   type: 'info',
                   text1: 'Coming Soon',
@@ -355,7 +345,6 @@ const LoginScreen = () => {
             <TouchableOpacity
               className="bg-white border border-gray-200 rounded-xl p-4 flex-1 shadow-sm"
               onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 Toast.show({
                   type: 'info',
                   text1: 'Coming Soon',
@@ -381,7 +370,6 @@ const LoginScreen = () => {
             </Text>
             <TouchableOpacity
               onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 router.push('/auth/signup');
               }}
             >
