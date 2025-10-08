@@ -1,7 +1,8 @@
 // constants/config.ts
 
 export const API_CONFIG = {
-  BASE_URL: 'https://9zqwrzw6-5000.inc1.devtunnels.ms/api',
+  // BASE_URL: 'https://9zqwrzw6-5000.inc1.devtunnels.ms/api',  office
+  BASE_URL: 'https://4f4598x0-5000.inc1.devtunnels.ms/api',
   TIMEOUT: 30000, // 30 seconds
 };
 
