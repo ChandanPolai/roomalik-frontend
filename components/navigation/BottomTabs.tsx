@@ -2,7 +2,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { DrawerActions, useNavigation } from '@react-navigation/native';
 import { Tabs } from 'expo-router';
-import React from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -91,20 +90,20 @@ const BottomTabs = () => {
         }}
       />
       <Tabs.Screen
+        name="plots"
+        options={{
+          title: 'Plots',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="business" size={size} color={color} />
+          ),
+        }}
+      />
+       <Tabs.Screen
         name="rooms"
         options={{
           title: 'Rooms',
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="bed" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="payment"
-        options={{
-          title: 'Payment',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="wallet" size={size} color={color} />
           ),
         }}
       />
@@ -120,10 +119,13 @@ const BottomTabs = () => {
       <Tabs.Screen name="profile" options={{ href: null }} />
       <Tabs.Screen name="auth/login" options={{ href: null }} />
       <Tabs.Screen name="auth/signup" options={{ href: null }} />
+      <Tabs.Screen name="payment" options={{ href: null }} />
       <Tabs.Screen
-  name="notification"
-  options={{ href: null }}
-/>
+        name="notification"
+        options={{ href: null }}
+      />
+
+      {/* Payment screen removed from bottom tabs */}
     </Tabs>
   );
 };

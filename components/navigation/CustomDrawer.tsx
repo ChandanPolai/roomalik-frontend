@@ -10,11 +10,20 @@ const CustomDrawer = (props: any) => {
   const { user, logout } = useAuth();
   const router = useRouter();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const handleLogout = async () => {
     setShowLogoutModal(false);
     await logout();
     router.replace('/auth/login');
+  };
+
+  const handleDeleteAccount = async () => {
+    setShowDeleteModal(false);
+    // Add your delete account logic here
+    console.log('Delete account functionality');
+    // await deleteAccount();
+    // router.replace('/auth/login');
   };
 
   const menuItems = [
@@ -24,6 +33,14 @@ const CustomDrawer = (props: any) => {
       onPress: () => {
         props.navigation.closeDrawer();
         router.push('/profile');
+      },
+    },
+    {
+      title: 'Payment',
+      icon: 'wallet',
+      onPress: () => {
+        props.navigation.closeDrawer();
+        router.push('/payment');
       },
     },
     {
@@ -80,20 +97,30 @@ const CustomDrawer = (props: any) => {
             </TouchableOpacity>
           ))}
         </View>
-
-        {/* Logout Button */}
-        <View style={styles.logoutContainer}>
-          <TouchableOpacity 
-            style={styles.logoutButton} 
-            onPress={() => setShowLogoutModal(true)}
-          >
-            <Ionicons name="log-out-outline" size={20} color="#FFFFFF" />
-            <Text style={styles.logoutText}>Logout</Text>
-          </TouchableOpacity>
-        </View>
       </DrawerContentScrollView>
 
-      {/* Logout Confirmation Modal - FIXED BACKGROUND */}
+      {/* Bottom Buttons Container */}
+      <View style={styles.bottomContainer}>
+        {/* Delete Account Button */}
+        <TouchableOpacity 
+          style={styles.deleteButton} 
+          onPress={() => setShowDeleteModal(true)}
+        >
+          <Ionicons name="trash-outline" size={20} color="#FFFFFF" />
+          <Text style={styles.deleteButtonText}>Delete Account</Text>
+        </TouchableOpacity>
+
+        {/* Logout Button */}
+        <TouchableOpacity 
+          style={styles.logoutButton} 
+          onPress={() => setShowLogoutModal(true)}
+        >
+          <Ionicons name="log-out-outline" size={20} color="#FFFFFF" />
+          <Text style={styles.logoutText}>Logout</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Logout Confirmation Modal */}
       <Modal
         visible={showLogoutModal}
         transparent={true}
@@ -125,6 +152,44 @@ const CustomDrawer = (props: any) => {
                 onPress={handleLogout}
               >
                 <Text style={styles.confirmButtonText}>Yes, Logout</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Delete Account Confirmation Modal */}
+      <Modal
+        visible={showDeleteModal}
+        transparent={true}
+        animationType="fade"
+        statusBarTranslucent={true}
+        onRequestClose={() => setShowDeleteModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <View style={[styles.modalIconContainer, { backgroundColor: '#FEE2E2' }]}>
+              <Ionicons name="trash" size={48} color="#DC2626" />
+            </View>
+            
+            <Text style={styles.modalTitle}>Delete Account</Text>
+            <Text style={styles.modalMessage}>
+              Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently lost.
+            </Text>
+
+            <View style={styles.modalButtonContainer}>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => setShowDeleteModal(false)}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.confirmButton, { backgroundColor: '#DC2626' }]}
+                onPress={handleDeleteAccount}
+              >
+                <Text style={styles.confirmButtonText}>Delete Account</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -162,6 +227,7 @@ const styles = StyleSheet.create({
   },
   menuContainer: {
     paddingHorizontal: 8,
+    marginBottom: 8,
   },
   menuItem: {
     flexDirection: 'row',
@@ -186,9 +252,11 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#1F2937',
   },
-  logoutContainer: {
+  bottomContainer: {
     padding: 8,
-    marginTop: 'auto',
+    borderTopWidth: 1,
+    borderTopColor: '#E5E7EB',
+    backgroundColor: '#FFFFFF',
   },
   logoutButton: {
     backgroundColor: '#EF4444',
@@ -197,6 +265,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 12,
     borderRadius: 8,
+    marginBottom: 8,
   },
   logoutText: {
     color: '#FFFFFF',
@@ -204,10 +273,25 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginLeft: 6,
   },
-  // Modal Styles - FIXED
+  deleteButton: {
+    backgroundColor: '#DC2626',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  deleteButtonText: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: 'bold',
+    marginLeft: 6,
+  },
+  // Modal Styles
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)', // Darker overlay
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
