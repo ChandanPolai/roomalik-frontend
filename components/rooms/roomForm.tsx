@@ -1,5 +1,6 @@
 // components/rooms/roomForm.tsx
 import { Ionicons } from '@expo/vector-icons';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import * as ImagePicker from 'expo-image-picker';
 import React, { useEffect, useState } from 'react';
 import { Alert, Dimensions, Image, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -35,6 +36,8 @@ const RoomForm: React.FC<RoomFormProps> = ({ room, plots, onSubmit, onCancel, is
   const [errors, setErrors] = useState<Partial<RoomFormData>>({});
   const [amenityInput, setAmenityInput] = useState('');
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const [showAvailableFromPicker, setShowAvailableFromPicker] = useState(false);
+  const [showAvailableUntilPicker, setShowAvailableUntilPicker] = useState(false);
 
   useEffect(() => {
     if (room) {
@@ -50,6 +53,8 @@ const RoomForm: React.FC<RoomFormProps> = ({ room, plots, onSubmit, onCancel, is
         amenities: room.amenities || [],
         status: room.status,
         plotId: typeof room.plotId === 'string' ? room.plotId : room.plotId._id,
+        availableFrom: room.availableFrom || '',
+        availableUntil: room.availableUntil || '',
       });
       setSelectedImages(room.images.map(img => img.url));
     }
@@ -70,11 +75,26 @@ const RoomForm: React.FC<RoomFormProps> = ({ room, plots, onSubmit, onCancel, is
     if (!formData.number.trim()) newErrors.number = 'Room number is required';
     if (!formData.size.trim() || isNaN(Number(formData.size)) || Number(formData.size) <= 0) newErrors.size = 'Valid size is required';
     if (!formData.type.trim()) newErrors.type = 'Room type is required';
-    if (!formData.rent.trim() || isNaN(Number(formData.rent))) newErrors.rent = 'Valid rent is required';
-    if (!formData.deposit.trim() || isNaN(Number(formData.deposit))) newErrors.deposit = 'Valid deposit is required';
+    if (!formData.rent.trim() || isNaN(Number(formData.rent)) || Number(formData.rent) <= 0) newErrors.rent = 'Valid rent is required';
+    if (!formData.deposit.trim() || isNaN(Number(formData.deposit)) || Number(formData.deposit) <= 0) newErrors.deposit = 'Valid deposit is required';
     if (!formData.plotId) newErrors.plotId = 'Select a plot';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const isFormValid = (): boolean => {
+    return formData.number.trim() !== '' &&
+           formData.size.trim() !== '' &&
+           !isNaN(Number(formData.size)) &&
+           Number(formData.size) > 0 &&
+           formData.type.trim() !== '' &&
+           formData.rent.trim() !== '' &&
+           !isNaN(Number(formData.rent)) &&
+           Number(formData.rent) > 0 &&
+           formData.deposit.trim() !== '' &&
+           !isNaN(Number(formData.deposit)) &&
+           Number(formData.deposit) > 0 &&
+           formData.plotId !== '';
   };
 
   const pickImage = async () => {
@@ -135,8 +155,25 @@ const RoomForm: React.FC<RoomFormProps> = ({ room, plots, onSubmit, onCancel, is
     return `${API_CONFIG.IMAGE_URL}${url}`;
   };
 
+  const handleAvailableFromChange = (event: any, selectedDate?: Date) => {
+    setShowAvailableFromPicker(false);
+    if (selectedDate) {
+      setFormData(prev => ({ ...prev, availableFrom: selectedDate.toISOString().split('T')[0] }));
+    }
+  };
+
+  const handleAvailableUntilChange = (event: any, selectedDate?: Date) => {
+    setShowAvailableUntilPicker(false);
+    if (selectedDate) {
+      setFormData(prev => ({ ...prev, availableUntil: selectedDate.toISOString().split('T')[0] }));
+    }
+  };
+
   const handleSubmit = async () => {
-    if (!validateForm()) return;
+    if (!isFormValid()) {
+      validateForm(); // Show validation errors
+      return;
+    }
     try {
       await onSubmit(formData, selectedImages);
     } catch {
@@ -153,12 +190,17 @@ const RoomForm: React.FC<RoomFormProps> = ({ room, plots, onSubmit, onCancel, is
             <Ionicons name="close" size={24} color="#374151" />
           </TouchableOpacity>
           <Text className="text-lg font-semibold text-gray-800">{room ? 'Edit Room' : 'Add New Room'}</Text>
-          <TouchableOpacity onPress={handleSubmit} disabled={isLoading} className={`px-4 py-2 rounded-lg ${isLoading ? 'bg-gray-300' : 'bg-blue-600'}`}>
-            <Text className={`font-medium ${isLoading ? 'text-gray-500' : 'text-white'}`}>{isLoading ? 'Saving...' : 'Save'}</Text>
+          <TouchableOpacity onPress={handleSubmit} disabled={isLoading || !isFormValid()} className={`px-4 py-2 rounded-lg ${isLoading || !isFormValid() ? 'bg-gray-300' : 'bg-blue-600'}`}>
+            <Text className={`font-medium ${isLoading || !isFormValid() ? 'text-gray-500' : 'text-white'}`}>{isLoading ? 'Saving...' : 'Save'}</Text>
           </TouchableOpacity>
         </View>
 
-        <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+        <ScrollView 
+          className="flex-1" 
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{ paddingBottom: 20 }}
+        >
           <Animated.View entering={FadeInUp.delay(100).duration(300)} className="p-6 space-y-6">
             {/* Images */}
             <View className="space-y-4">
@@ -320,8 +362,62 @@ const RoomForm: React.FC<RoomFormProps> = ({ room, plots, onSubmit, onCancel, is
               </ScrollView>
               {errors.plotId && <Text className="text-red-500 text-xs">{errors.plotId}</Text>}
             </View>
+
+            {/* Availability Dates */}
+            <View className="space-y-4">
+              <Text className="text-lg font-semibold text-gray-800">Availability</Text>
+              
+              <View className="bg-white rounded-lg p-3 border border-gray-200">
+                <Text className="text-sm font-medium text-gray-700 mb-2">Available From</Text>
+                <TouchableOpacity
+                  onPress={() => setShowAvailableFromPicker(true)}
+                  className="px-3 py-3 rounded-lg border border-gray-300 bg-gray-50 flex-row items-center justify-between"
+                >
+                  <Text className={`text-base ${formData.availableFrom ? 'text-gray-800' : 'text-gray-400'}`}>
+                    {formData.availableFrom || 'Select date'}
+                  </Text>
+                  <Ionicons name="calendar-outline" size={20} color="#6B7280" />
+                </TouchableOpacity>
+              </View>
+
+              <View className="bg-white rounded-lg p-3 border border-gray-200">
+                <Text className="text-sm font-medium text-gray-700 mb-2">Available Until</Text>
+                <TouchableOpacity
+                  onPress={() => setShowAvailableUntilPicker(true)}
+                  className="px-3 py-3 rounded-lg border border-gray-300 bg-gray-50 flex-row items-center justify-between"
+                >
+                  <Text className={`text-base ${formData.availableUntil ? 'text-gray-800' : 'text-gray-400'}`}>
+                    {formData.availableUntil || 'Select date'}
+                  </Text>
+                  <Ionicons name="calendar-outline" size={20} color="#6B7280" />
+                </TouchableOpacity>
+              </View>
+            </View>
           </Animated.View>
         </ScrollView>
+
+        {/* Date Pickers */}
+        {showAvailableFromPicker && (
+          <DateTimePicker
+            value={formData.availableFrom ? new Date(formData.availableFrom) : new Date()}
+            mode="date"
+            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+            onChange={handleAvailableFromChange}
+            minimumDate={new Date()}
+            maximumDate={new Date(2030, 11, 31)}
+          />
+        )}
+
+        {showAvailableUntilPicker && (
+          <DateTimePicker
+            value={formData.availableUntil ? new Date(formData.availableUntil) : new Date()}
+            mode="date"
+            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+            onChange={handleAvailableUntilChange}
+            minimumDate={formData.availableFrom ? new Date(formData.availableFrom) : new Date()}
+            maximumDate={new Date(2030, 11, 31)}
+          />
+        )}
       </Animated.View>
     </KeyboardAvoidingView>
   );

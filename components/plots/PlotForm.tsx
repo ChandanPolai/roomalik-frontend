@@ -1,5 +1,6 @@
 // components/plots/PlotForm.tsx
 import { Ionicons } from '@expo/vector-icons';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import * as ImagePicker from 'expo-image-picker';
 import React, { useEffect, useState } from 'react';
 import {
@@ -44,6 +45,8 @@ const PlotForm: React.FC<PlotFormProps> = ({ plot, onSubmit, onCancel, isLoading
   const [facilityInput, setFacilityInput] = useState('');
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
+  const [showPurchaseDatePicker, setShowPurchaseDatePicker] = useState(false);
+  const [showRegistrationDatePicker, setShowRegistrationDatePicker] = useState(false);
 
   // Helper function to get full image URL
   const getImageUrl = (url: string) => {
@@ -53,6 +56,20 @@ const PlotForm: React.FC<PlotFormProps> = ({ plot, onSubmit, onCancel, isLoading
     }
     // Otherwise, prepend the image URL
     return `${API_CONFIG.IMAGE_URL}${url}`;
+  };
+
+  const handlePurchaseDateChange = (event: any, selectedDate?: Date) => {
+    setShowPurchaseDatePicker(false);
+    if (selectedDate) {
+      setFormData(prev => ({ ...prev, purchaseDate: selectedDate.toISOString().split('T')[0] }));
+    }
+  };
+
+  const handleRegistrationDateChange = (event: any, selectedDate?: Date) => {
+    setShowRegistrationDatePicker(false);
+    if (selectedDate) {
+      setFormData(prev => ({ ...prev, registrationDate: selectedDate.toISOString().split('T')[0] }));
+    }
   };
 
   useEffect(() => {
@@ -67,6 +84,8 @@ const PlotForm: React.FC<PlotFormProps> = ({ plot, onSubmit, onCancel, isLoading
         totalArea: plot.totalArea.toString(),
         constructionYear: plot.constructionYear?.toString() || '',
         facilities: plot.facilities,
+        purchaseDate: plot.purchaseDate || '',
+        registrationDate: plot.registrationDate || '',
       });
       // Set existing images
       setSelectedImages(plot.images.map(img => img.url));
@@ -124,8 +143,22 @@ const PlotForm: React.FC<PlotFormProps> = ({ plot, onSubmit, onCancel, isLoading
     return Object.keys(newErrors).length === 0;
   };
 
+  const isFormValid = (): boolean => {
+    return formData.name.trim() !== '' &&
+           formData.street.trim() !== '' &&
+           formData.city.trim() !== '' &&
+           formData.state.trim() !== '' &&
+           formData.country.trim() !== '' &&
+           formData.pincode.trim() !== '' &&
+           formData.totalArea.trim() !== '' &&
+           !isNaN(Number(formData.totalArea)) &&
+           Number(formData.totalArea) > 0 &&
+           (!formData.constructionYear || (!isNaN(Number(formData.constructionYear)) && Number(formData.constructionYear) >= 1800));
+  };
+
   const handleSubmit = async () => {
-    if (!validateForm()) {
+    if (!isFormValid()) {
+      validateForm(); // Show validation errors
       return;
     }
 
@@ -234,28 +267,42 @@ const PlotForm: React.FC<PlotFormProps> = ({ plot, onSubmit, onCancel, isLoading
           </Text>
           <TouchableOpacity
             onPress={handleSubmit}
-            disabled={isLoading}
-            className={`px-4 py-2 rounded-lg ${isLoading ? 'bg-gray-300' : 'bg-blue-600'}`}
+            disabled={isLoading || !isFormValid()}
+            className={`px-4 py-2 rounded-lg ${isLoading || !isFormValid() ? 'bg-gray-300' : 'bg-blue-600'}`}
           >
-            <Text className={`font-medium ${isLoading ? 'text-gray-500' : 'text-white'}`}>
+            <Text className={`font-medium ${isLoading || !isFormValid() ? 'text-gray-500' : 'text-white'}`}>
               {isLoading ? 'Saving...' : 'Save'}
             </Text>
           </TouchableOpacity>
         </View>
 
-        <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-          <Animated.View entering={FadeInUp.delay(100).duration(300)} className="p-6 space-y-6">
+        <ScrollView 
+          className="flex-1" 
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{ paddingBottom: 20 }}
+        >
+          <Animated.View entering={FadeInUp.delay(100).duration(300)} className="p-4 space-y-4">
             {/* Images Section */}
             <View className="space-y-4">
               <View className="flex-row items-center justify-between">
                 <Text className="text-lg font-semibold text-gray-800">Images</Text>
-                <TouchableOpacity
-                  onPress={showImageOptions}
-                  className="bg-blue-600 px-4 py-2 rounded-lg flex-row items-center"
-                >
-                  <Ionicons name="camera" size={16} color="white" />
-                  <Text className="text-white font-medium ml-2">Add Images</Text>
-                </TouchableOpacity>
+                <View className="flex-row space-x-2">
+                  <TouchableOpacity
+                    onPress={takePhoto}
+                    className="bg-blue-600 px-3 py-2 rounded-lg flex-row items-center"
+                  >
+                    <Ionicons name="camera" size={16} color="white" />
+                    <Text className="text-white font-medium ml-1">Camera</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={pickImage}
+                    className="bg-indigo-600 px-3 py-2 rounded-lg flex-row items-center"
+                  >
+                    <Ionicons name="images" size={16} color="white" />
+                    <Text className="text-white font-medium ml-1">Gallery</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
 
               {selectedImages.length > 0 ? (
@@ -290,39 +337,39 @@ const PlotForm: React.FC<PlotFormProps> = ({ plot, onSubmit, onCancel, isLoading
             <View className="space-y-4">
               <Text className="text-lg font-semibold text-gray-800">Basic Information</Text>
               
-              <View className="bg-white rounded-xl p-4 border border-gray-200">
+              <View className="bg-white rounded-lg p-3 border border-gray-200">
                 <Text className="text-sm font-medium text-gray-700 mb-3">Plot Name *</Text>
                 <TextInput
                   value={formData.name}
                   onChangeText={(text) => setFormData(prev => ({ ...prev, name: text }))}
                   placeholder="Enter plot name"
-                  className={`text-base px-4 py-4 rounded-lg border ${errors.name ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-gray-50'}`}
+                  className={`text-base px-3 py-3 rounded-lg border ${errors.name ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-gray-50'}`}
                   placeholderTextColor="#9CA3AF"
                 />
                 {errors.name && <Text className="text-red-500 text-xs mt-2">{errors.name}</Text>}
               </View>
 
-              <View className="bg-white rounded-xl p-4 border border-gray-200">
+              <View className="bg-white rounded-lg p-3 border border-gray-200">
                 <Text className="text-sm font-medium text-gray-700 mb-3">Total Area (sq ft) *</Text>
                 <TextInput
                   value={formData.totalArea}
                   onChangeText={(text) => setFormData(prev => ({ ...prev, totalArea: text }))}
                   placeholder="Enter total area"
                   keyboardType="numeric"
-                  className={`text-base px-4 py-4 rounded-lg border ${errors.totalArea ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-gray-50'}`}
+                  className={`text-base px-3 py-3 rounded-lg border ${errors.totalArea ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-gray-50'}`}
                   placeholderTextColor="#9CA3AF"
                 />
                 {errors.totalArea && <Text className="text-red-500 text-xs mt-2">{errors.totalArea}</Text>}
               </View>
 
-              <View className="bg-white rounded-xl p-4 border border-gray-200">
+              <View className="bg-white rounded-lg p-3 border border-gray-200">
                 <Text className="text-sm font-medium text-gray-700 mb-3">Construction Year</Text>
                 <TextInput
                   value={formData.constructionYear}
                   onChangeText={(text) => setFormData(prev => ({ ...prev, constructionYear: text }))}
                   placeholder="Enter construction year"
                   keyboardType="numeric"
-                  className={`text-base px-4 py-4 rounded-lg border ${errors.constructionYear ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-gray-50'}`}
+                  className={`text-base px-3 py-3 rounded-lg border ${errors.constructionYear ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-gray-50'}`}
                   placeholderTextColor="#9CA3AF"
                 />
                 {errors.constructionYear && <Text className="text-red-500 text-xs mt-2">{errors.constructionYear}</Text>}
@@ -333,13 +380,13 @@ const PlotForm: React.FC<PlotFormProps> = ({ plot, onSubmit, onCancel, isLoading
             <View className="space-y-4">
               <Text className="text-lg font-semibold text-gray-800">Address</Text>
               
-              <View className="bg-white rounded-xl p-4 border border-gray-200">
+              <View className="bg-white rounded-lg p-3 border border-gray-200">
                 <Text className="text-sm font-medium text-gray-700 mb-3">Street *</Text>
                 <TextInput
                   value={formData.street}
                   onChangeText={(text) => setFormData(prev => ({ ...prev, street: text }))}
                   placeholder="Enter street address"
-                  className={`text-base px-4 py-4 rounded-lg border ${errors.street ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-gray-50'}`}
+                  className={`text-base px-3 py-3 rounded-lg border ${errors.street ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-gray-50'}`}
                   placeholderTextColor="#9CA3AF"
                 />
                 {errors.street && <Text className="text-red-500 text-xs mt-2">{errors.street}</Text>}
@@ -352,7 +399,7 @@ const PlotForm: React.FC<PlotFormProps> = ({ plot, onSubmit, onCancel, isLoading
                     value={formData.city}
                     onChangeText={(text) => setFormData(prev => ({ ...prev, city: text }))}
                     placeholder="City"
-                    className={`text-base px-4 py-4 rounded-lg border ${errors.city ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-gray-50'}`}
+                    className={`text-base px-3 py-3 rounded-lg border ${errors.city ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-gray-50'}`}
                     placeholderTextColor="#9CA3AF"
                   />
                   {errors.city && <Text className="text-red-500 text-xs mt-2">{errors.city}</Text>}
@@ -364,7 +411,7 @@ const PlotForm: React.FC<PlotFormProps> = ({ plot, onSubmit, onCancel, isLoading
                     value={formData.state}
                     onChangeText={(text) => setFormData(prev => ({ ...prev, state: text }))}
                     placeholder="State"
-                    className={`text-base px-4 py-4 rounded-lg border ${errors.state ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-gray-50'}`}
+                    className={`text-base px-3 py-3 rounded-lg border ${errors.state ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-gray-50'}`}
                     placeholderTextColor="#9CA3AF"
                   />
                   {errors.state && <Text className="text-red-500 text-xs mt-2">{errors.state}</Text>}
@@ -378,7 +425,7 @@ const PlotForm: React.FC<PlotFormProps> = ({ plot, onSubmit, onCancel, isLoading
                     value={formData.country}
                     onChangeText={(text) => setFormData(prev => ({ ...prev, country: text }))}
                     placeholder="Country"
-                    className={`text-base px-4 py-4 rounded-lg border ${errors.country ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-gray-50'}`}
+                    className={`text-base px-3 py-3 rounded-lg border ${errors.country ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-gray-50'}`}
                     placeholderTextColor="#9CA3AF"
                   />
                   {errors.country && <Text className="text-red-500 text-xs mt-2">{errors.country}</Text>}
@@ -391,7 +438,7 @@ const PlotForm: React.FC<PlotFormProps> = ({ plot, onSubmit, onCancel, isLoading
                     onChangeText={(text) => setFormData(prev => ({ ...prev, pincode: text }))}
                     placeholder="Pincode"
                     keyboardType="numeric"
-                    className={`text-base px-4 py-4 rounded-lg border ${errors.pincode ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-gray-50'}`}
+                    className={`text-base px-3 py-3 rounded-lg border ${errors.pincode ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-gray-50'}`}
                     placeholderTextColor="#9CA3AF"
                   />
                   {errors.pincode && <Text className="text-red-500 text-xs mt-2">{errors.pincode}</Text>}
@@ -404,13 +451,13 @@ const PlotForm: React.FC<PlotFormProps> = ({ plot, onSubmit, onCancel, isLoading
               <Text className="text-lg font-semibold text-gray-800">Facilities</Text>
               
               {/* Add Facility */}
-              <View className="bg-white rounded-xl p-4 border border-gray-200">
+              <View className="bg-white rounded-lg p-3 border border-gray-200">
                 <View className="flex-row space-x-3">
                   <TextInput
                     value={facilityInput}
                     onChangeText={setFacilityInput}
                     placeholder="Add facility"
-                    className="flex-1 text-base px-4 py-4 rounded-lg border border-gray-300 bg-gray-50"
+                    className="flex-1 text-base px-3 py-3 rounded-lg border border-gray-300 bg-gray-50"
                     placeholderTextColor="#9CA3AF"
                     onSubmitEditing={addFacility}
                   />
@@ -425,7 +472,7 @@ const PlotForm: React.FC<PlotFormProps> = ({ plot, onSubmit, onCancel, isLoading
               </View>
 
               {/* Common Facilities */}
-              <View className="bg-white rounded-xl p-4 border border-gray-200">
+              <View className="bg-white rounded-lg p-3 border border-gray-200">
                 <Text className="text-sm font-medium text-gray-700 mb-3">Quick Add</Text>
                 <View className="flex-row flex-wrap gap-2">
                   {commonFacilities.map((facility) => (
@@ -459,7 +506,7 @@ const PlotForm: React.FC<PlotFormProps> = ({ plot, onSubmit, onCancel, isLoading
 
               {/* Selected Facilities */}
               {formData.facilities.length > 0 && (
-                <View className="bg-white rounded-xl p-4 border border-gray-200">
+                <View className="bg-white rounded-lg p-3 border border-gray-200">
                   <Text className="text-sm font-medium text-gray-700 mb-3">Selected Facilities</Text>
                   <View className="flex-row flex-wrap gap-2">
                     {formData.facilities.map((facility) => (
@@ -477,8 +524,60 @@ const PlotForm: React.FC<PlotFormProps> = ({ plot, onSubmit, onCancel, isLoading
                 </View>
               )}
             </View>
+
+            {/* Important Dates */}
+            <View className="space-y-4">
+              <Text className="text-lg font-semibold text-gray-800">Important Dates</Text>
+              
+              <View className="bg-white rounded-lg p-3 border border-gray-200">
+                <Text className="text-sm font-medium text-gray-700 mb-2">Purchase Date</Text>
+                <TouchableOpacity
+                  onPress={() => setShowPurchaseDatePicker(true)}
+                  className="px-3 py-3 rounded-lg border border-gray-300 bg-gray-50 flex-row items-center justify-between"
+                >
+                  <Text className={`text-base ${formData.purchaseDate ? 'text-gray-800' : 'text-gray-400'}`}>
+                    {formData.purchaseDate || 'Select purchase date'}
+                  </Text>
+                  <Ionicons name="calendar-outline" size={20} color="#6B7280" />
+                </TouchableOpacity>
+              </View>
+
+              <View className="bg-white rounded-lg p-3 border border-gray-200">
+                <Text className="text-sm font-medium text-gray-700 mb-2">Registration Date</Text>
+                <TouchableOpacity
+                  onPress={() => setShowRegistrationDatePicker(true)}
+                  className="px-3 py-3 rounded-lg border border-gray-300 bg-gray-50 flex-row items-center justify-between"
+                >
+                  <Text className={`text-base ${formData.registrationDate ? 'text-gray-800' : 'text-gray-400'}`}>
+                    {formData.registrationDate || 'Select registration date'}
+                  </Text>
+                  <Ionicons name="calendar-outline" size={20} color="#6B7280" />
+                </TouchableOpacity>
+              </View>
+            </View>
           </Animated.View>
         </ScrollView>
+
+        {/* Date Pickers */}
+        {showPurchaseDatePicker && (
+          <DateTimePicker
+            value={formData.purchaseDate ? new Date(formData.purchaseDate) : new Date()}
+            mode="date"
+            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+            onChange={handlePurchaseDateChange}
+            maximumDate={new Date()}
+          />
+        )}
+
+        {showRegistrationDatePicker && (
+          <DateTimePicker
+            value={formData.registrationDate ? new Date(formData.registrationDate) : new Date()}
+            mode="date"
+            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+            onChange={handleRegistrationDateChange}
+            maximumDate={new Date()}
+          />
+        )}
       </Animated.View>
     </KeyboardAvoidingView>
   );
