@@ -64,28 +64,41 @@ const PlotsScreen = () => {
     try {
       setIsSubmitting(true);
       
-      const plotData = {
-        name: formData.name,
-        address: {
-          street: formData.street,
-          city: formData.city,
-          state: formData.state,
-          country: formData.country,
-          pincode: formData.pincode,
-        },
-        totalArea: Number(formData.totalArea),
-        constructionYear: formData.constructionYear ? Number(formData.constructionYear) : undefined,
-        facilities: formData.facilities,
-        location: formData.location,
-      };
+      const body = new FormData();
+      body.append('name', formData.name);
+      body.append('address', JSON.stringify({
+        street: formData.street,
+        city: formData.city,
+        state: formData.state,
+        country: formData.country,
+        pincode: formData.pincode,
+      }));
+      body.append('totalArea', String(Number(formData.totalArea)));
+      if (formData.constructionYear) {
+        body.append('constructionYear', String(Number(formData.constructionYear)));
+      }
+      if (formData.facilities?.length) {
+        body.append('facilities', JSON.stringify(formData.facilities));
+      }
+      if (formData.location && (formData.location.lat || formData.location.lng)) {
+        body.append('location', JSON.stringify(formData.location));
+      }
+
+      // Append only local device images (URIs), server images are already present
+      images
+        .filter((uri) => uri.startsWith('file://') || uri.startsWith('content://'))
+        .slice(0, 10)
+        .forEach((uri, idx) => {
+          const name = `image_${Date.now()}_${idx}.jpg`;
+          // @ts-ignore React Native FormData file
+          body.append('images', { uri, name, type: 'image/jpeg' });
+        });
 
       let response;
       if (selectedPlot) {
-        // Update existing plot
-        response = await plotsApiService.updatePlot(selectedPlot._id, plotData);
+        response = await plotsApiService.updatePlot(selectedPlot._id, body);
       } else {
-        // Create new plot
-        response = await plotsApiService.createPlot(plotData);
+        response = await plotsApiService.createPlot(body);
       }
 
       if (response.success) {

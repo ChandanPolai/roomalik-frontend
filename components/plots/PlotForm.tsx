@@ -15,6 +15,7 @@ import {
     View,
 } from 'react-native';
 import Animated, { FadeInUp, SlideInDown } from 'react-native-reanimated';
+import { API_CONFIG } from '../../constants/config';
 import { Plot, PlotFormData } from '../../types';
 
 const { width } = Dimensions.get('window');
@@ -43,6 +44,16 @@ const PlotForm: React.FC<PlotFormProps> = ({ plot, onSubmit, onCancel, isLoading
   const [facilityInput, setFacilityInput] = useState('');
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
+
+  // Helper function to get full image URL
+  const getImageUrl = (url: string) => {
+    // If it's already a full URL or local file, return as is
+    if (url.startsWith('http') || url.startsWith('file://') || url.startsWith('content://')) {
+      return url;
+    }
+    // Otherwise, prepend the image URL
+    return `${API_CONFIG.IMAGE_URL}${url}`;
+  };
 
   useEffect(() => {
     if (plot) {
@@ -252,7 +263,7 @@ const PlotForm: React.FC<PlotFormProps> = ({ plot, onSubmit, onCancel, isLoading
                   {selectedImages.map((imageUri, index) => (
                     <View key={index} className="relative">
                       <Image
-                        source={{ uri: imageUri }}
+                        source={{ uri: getImageUrl(imageUri) }}
                         className="rounded-xl"
                         style={{ width: 120, height: 120 }}
                         resizeMode="cover"

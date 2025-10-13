@@ -3,6 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown, FadeOutUp } from 'react-native-reanimated';
+import { API_CONFIG } from '../../constants/config';
 import { Plot } from '../../types';
 
 interface PlotCardProps {
@@ -18,6 +19,16 @@ const PlotCard: React.FC<PlotCardProps> = ({ plot, onPress, onEdit, onDelete }) 
       return `${(area / 10000).toFixed(1)} acres`;
     }
     return `${area.toLocaleString()} sq ft`;
+  };
+
+  // Helper function to get full image URL
+  const getImageUrl = (url: string) => {
+    // If it's already a full URL or local file, return as is
+    if (url.startsWith('http') || url.startsWith('file://') || url.startsWith('content://')) {
+      return url;
+    }
+    // Otherwise, prepend the image URL
+    return `${API_CONFIG.IMAGE_URL}${url}`;
   };
 
   const formatDate = (dateString: string) => {
@@ -38,7 +49,7 @@ const PlotCard: React.FC<PlotCardProps> = ({ plot, onPress, onEdit, onDelete }) 
         {/* Image */}
         {plot.images.length > 0 ? (
           <Image
-            source={{ uri: plot.images[0].url }}
+            source={{ uri: getImageUrl(plot.images[0].url) }}
             className="w-full h-48"
             resizeMode="cover"
           />

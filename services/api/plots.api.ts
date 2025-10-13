@@ -1,5 +1,5 @@
 // services/api/plots.api.ts
-import { ApiResponse, CreatePlotData, Plot, UpdatePlotData } from '../../types';
+import { ApiResponse, Plot } from '../../types';
 import apiClient from './apiClient';
 
 class PlotsApiService {
@@ -13,14 +13,18 @@ class PlotsApiService {
     return apiClient.get<ApiResponse<Plot>>(`/plots/${id}`);
   }
 
-  // Create new plot
-  async createPlot(plotData: CreatePlotData): Promise<ApiResponse<Plot>> {
-    return apiClient.post<ApiResponse<Plot>>('/plots', plotData);
+  // Create new plot (multipart)
+  async createPlot(formData: FormData): Promise<ApiResponse<Plot>> {
+    return apiClient.post<ApiResponse<Plot>>('/plots', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
   }
 
-  // Update plot
-  async updatePlot(id: string, plotData: UpdatePlotData): Promise<ApiResponse<Plot>> {
-    return apiClient.put<ApiResponse<Plot>>(`/plots/${id}`, plotData);
+  // Update plot (multipart)
+  async updatePlot(id: string, formData: FormData): Promise<ApiResponse<Plot>> {
+    return apiClient.put<ApiResponse<Plot>>(`/plots/${id}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
   }
 
   // Delete plot

@@ -1,9 +1,10 @@
 // components/plots/PlotDetails.tsx
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { Dimensions, Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { Plot } from '../../types';
+import ImageCarousel from './ImageCarousel';
 
 interface PlotDetailsProps {
   plot: Plot;
@@ -64,30 +65,7 @@ const PlotDetails: React.FC<PlotDetailsProps> = ({ plot, onEdit, onDelete, onClo
         <View className="p-6">
           <Text className="text-xl font-bold text-gray-800 mb-4">Images</Text>
           {plot.images.length > 0 ? (
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} className="space-x-4">
-              {plot.images.map((image, index) => (
-                <View key={index} className="relative">
-                  <Image
-                    source={{ uri: image.url }}
-                    className="rounded-2xl shadow-lg"
-                    style={{ width: width * 0.8, height: 240 }}
-                    resizeMode="cover"
-                  />
-                  {image.caption && (
-                    <View className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 rounded-b-2xl p-3">
-                      <Text className="text-white text-sm font-medium text-center">
-                        {image.caption}
-                      </Text>
-                    </View>
-                  )}
-                  <View className="absolute top-3 right-3 bg-white bg-opacity-90 rounded-full px-2 py-1">
-                    <Text className="text-gray-800 text-xs font-bold">
-                      {index + 1}/{plot.images.length}
-                    </Text>
-                  </View>
-                </View>
-              ))}
-            </ScrollView>
+            <ImageCarousel images={plot.images} height={240} />
           ) : (
             <View className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl h-48 items-center justify-center border-2 border-dashed border-gray-300">
               <Ionicons name="image-outline" size={64} color="#9CA3AF" />
