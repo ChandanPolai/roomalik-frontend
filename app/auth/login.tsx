@@ -4,17 +4,18 @@ import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
 import {
-  ActivityIndicator,
-  Animated,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    Animated,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Toast from 'react-native-toast-message';
 import '../../global.css';
 import authApi from '../../services/api/auth.api';
+import logger from '../../services/logger/logger.service';
 import { LoginCredentials } from '../../types';
 import { useAuth } from '../../utils/AuthProvider';
 
@@ -70,9 +71,11 @@ const LoginScreen = () => {
   };
 
   const handleLogin = async () => {
+    logger.userAction('Login button pressed', { email: formData.email });
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
     if (!formData.email || !formData.password) {
+      logger.warn('Login validation failed - missing fields', { hasEmail: !!formData.email, hasPassword: !!formData.password }, 'LoginScreen');
       Toast.show({
         type: 'error',
         text1: 'Validation Error',
@@ -86,6 +89,7 @@ const LoginScreen = () => {
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
+      logger.warn('Login validation failed - invalid email format', { email: formData.email }, 'LoginScreen');
       Toast.show({
         type: 'error',
         text1: 'Invalid Email',
@@ -101,6 +105,7 @@ const LoginScreen = () => {
     setError('');
 
     try {
+      logger.uiAction('Starting login process', 'LoginScreen', { email: formData.email });
       const response = await authApi.login(formData);
 
       if (response.success && response.data) {
@@ -113,6 +118,7 @@ const LoginScreen = () => {
           phone: response.data.phone,
         };
         
+        logger.uiAction('Login successful, showing success toast', 'LoginScreen', { userName: userData.name });
         Toast.show({
           type: 'success',
           text1: 'Login Successful! 🎉',
@@ -123,6 +129,7 @@ const LoginScreen = () => {
 
         await login(response.data.token, userData);
         
+        logger.navigationAction('Navigating to main tabs after successful login', '/(tabs)');
         setTimeout(() => {
           router.replace('/(tabs)');
         }, 500);
@@ -130,7 +137,7 @@ const LoginScreen = () => {
         throw new Error(response.error || response.message || 'Login failed');
       }
     } catch (err: any) {
-      console.error('Login error:', err);
+      logger.uiError(err, 'LoginScreen', 'Login Process');
       
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       

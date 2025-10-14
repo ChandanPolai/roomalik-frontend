@@ -1,6 +1,7 @@
 // services/api/auth.api.ts
-import apiClient from './apiClient';
 import { AuthResponse, LoginCredentials, SignupCredentials } from '../../types';
+import logger from '../logger/logger.service';
+import apiClient from './apiClient';
 
 class AuthApi {
   /**
@@ -8,9 +9,12 @@ class AuthApi {
    */
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     try {
+      logger.authAction('Login attempt', { email: credentials.email });
       const response = await apiClient.post<AuthResponse>('/auth/login', credentials);
+      logger.authAction('Login successful', { email: credentials.email });
       return response;
     } catch (error: any) {
+      logger.authError(error, 'Login');
       throw this.handleError(error);
     }
   }
@@ -20,9 +24,12 @@ class AuthApi {
    */
   async register(credentials: SignupCredentials): Promise<AuthResponse> {
     try {
+      logger.authAction('Registration attempt', { email: credentials.email });
       const response = await apiClient.post<AuthResponse>('/auth/register', credentials);
+      logger.authAction('Registration successful', { email: credentials.email });
       return response;
     } catch (error: any) {
+      logger.authError(error, 'Registration');
       throw this.handleError(error);
     }
   }
@@ -32,9 +39,11 @@ class AuthApi {
    */
   async logout(): Promise<void> {
     try {
+      logger.authAction('Logout attempt');
       await apiClient.post('/auth/logout');
+      logger.authAction('Logout successful');
     } catch (error: any) {
-      console.error('Logout error:', error);
+      logger.authError(error, 'Logout');
       // Don't throw error on logout failure, just log it
     }
   }
@@ -44,9 +53,12 @@ class AuthApi {
    */
   async getProfile(): Promise<any> {
     try {
+      logger.authAction('Get profile attempt');
       const response = await apiClient.get('/auth/profile');
+      logger.authAction('Get profile successful');
       return response;
     } catch (error: any) {
+      logger.authError(error, 'Get Profile');
       throw this.handleError(error);
     }
   }

@@ -1,6 +1,7 @@
 // services/api/apiClient.ts
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { API_CONFIG, STORAGE_KEYS } from '../../constants/config';
+import logger from '../logger/logger.service';
 import storageService from '../storage/storage.service';
 
 class ApiClient {
@@ -22,27 +23,32 @@ class ApiClient {
     // Request Interceptor
     this.axiosInstance.interceptors.request.use(
       async (config) => {
+        const startTime = Date.now();
+        config.metadata = { startTime };
+        
         try {
           const token = await storageService.getItem(STORAGE_KEYS.AUTH_TOKEN);
           
           if (token) {
             config.headers.Authorization = `Bearer ${token}`;
+            logger.debug('Token added to request headers', { hasToken: true });
           }
 
-          console.log('📤 Request:', {
-            method: config.method?.toUpperCase(),
-            url: config.url,
-            data: config.data,
-          });
+          logger.apiRequest(
+            config.method?.toUpperCase() || 'UNKNOWN',
+            config.url || 'UNKNOWN',
+            config.data,
+            config.headers
+          );
 
           return config;
         } catch (error) {
-          console.error('Request interceptor error:', error);
+          logger.error('Request interceptor error', error, 'ApiClient');
           return config;
         }
       },
       (error) => {
-        console.error('Request error:', error);
+        logger.error('Request error', error, 'ApiClient');
         return Promise.reject(error);
       }
     );
@@ -50,23 +56,29 @@ class ApiClient {
     // Response Interceptor
     this.axiosInstance.interceptors.response.use(
       (response: AxiosResponse) => {
-        console.log('📥 Response:', {
-          status: response.status,
-          url: response.config.url,
-          data: response.data,
-        });
+        const duration = response.config.metadata?.startTime 
+          ? Date.now() - response.config.metadata.startTime 
+          : undefined;
+          
+        logger.apiResponse(
+          response.status,
+          response.config.url || 'UNKNOWN',
+          response.data,
+          duration
+        );
+        
         return response;
       },
       async (error: AxiosError) => {
-        console.error('❌ Response Error:', {
-          status: error.response?.status,
-          url: error.config?.url,
-          message: error.message,
-          data: error.response?.data,
-        });
+        const duration = error.config?.metadata?.startTime 
+          ? Date.now() - error.config.metadata.startTime 
+          : undefined;
+
+        logger.apiError(error, error.config?.url, error.config?.method);
 
         // Handle 401 Unauthorized - Token expired or invalid
         if (error.response?.status === 401) {
+          logger.authError(new Error('Token expired or invalid'), 'Token Refresh');
           await storageService.removeItem(STORAGE_KEYS.AUTH_TOKEN);
           await storageService.removeItem(STORAGE_KEYS.USER_DATA);
           // You can add navigation to login here if needed
