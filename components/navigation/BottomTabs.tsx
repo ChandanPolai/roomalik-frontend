@@ -124,6 +124,18 @@ const BottomTabs = () => {
         name="notification"
         options={{ href: null }}
       />
+      <Tabs.Screen
+        name="privacy-policy"
+        options={{ href: null }}
+      />
+      <Tabs.Screen
+        name="terms-conditions"
+        options={{ href: null }}
+      />
+      <Tabs.Screen
+        name="help-support"
+        options={{ href: null }}
+      />
 
       {/* Payment screen removed from bottom tabs */}
     </Tabs>

@@ -2,10 +2,11 @@
 
 export const API_CONFIG = {
   //  office
-  BASE_URL: 'https://9zqwrzw6-5000.inc1.devtunnels.ms/api', 
-  IMAGE_URL: 'https://9zqwrzw6-5000.inc1.devtunnels.ms/',
+  // BASE_URL: 'https://9zqwrzw6-5000.inc1.devtunnels.ms/api', 
+  // IMAGE_URL: 'https://9zqwrzw6-5000.inc1.devtunnels.ms/',
   // Personal Laptop
-  // BASE_URL: 'https://4f4598x0-5000.inc1.devtunnels.ms/api',
+  BASE_URL: 'https://4f4598x0-5000.inc1.devtunnels.ms/api',
+  IMAGE_URL: 'https://4f4598x0-5000.inc1.devtunnels.ms/',
   TIMEOUT: 30000, // 30 seconds
 };
 

@@ -2,15 +2,15 @@
 import { Ionicons } from '@expo/vector-icons';
 import { DrawerContentScrollView } from '@react-navigation/drawer';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../utils/AuthProvider';
 
 const CustomDrawer = (props: any) => {
   const { user, logout } = useAuth();
   const router = useRouter();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const handleLogout = async () => {
     setShowLogoutModal(false);
@@ -18,18 +18,10 @@ const CustomDrawer = (props: any) => {
     router.replace('/auth/login');
   };
 
-  const handleDeleteAccount = async () => {
-    setShowDeleteModal(false);
-    // Add your delete account logic here
-    console.log('Delete account functionality');
-    // await deleteAccount();
-    // router.replace('/auth/login');
-  };
-
   const menuItems = [
     {
       title: 'Profile',
-      icon: 'person',
+      icon: 'person-outline',
       onPress: () => {
         props.navigation.closeDrawer();
         router.push('/profile');
@@ -37,7 +29,7 @@ const CustomDrawer = (props: any) => {
     },
     {
       title: 'Payment',
-      icon: 'wallet',
+      icon: 'wallet-outline',
       onPress: () => {
         props.navigation.closeDrawer();
         router.push('/payment');
@@ -45,40 +37,51 @@ const CustomDrawer = (props: any) => {
     },
     {
       title: 'Privacy Policy',
-      icon: 'shield-checkmark',
+      icon: 'shield-checkmark-outline',
       onPress: () => {
         props.navigation.closeDrawer();
-        // Add your privacy policy navigation
+        router.push('/privacy-policy');
       },
     },
     {
       title: 'Terms & Conditions',
-      icon: 'document-text',
+      icon: 'document-text-outline',
       onPress: () => {
         props.navigation.closeDrawer();
-        // Add your terms navigation
+        router.push('/terms-conditions');
       },
     },
     {
       title: 'Help & Support',
-      icon: 'help-circle',
+      icon: 'help-circle-outline',
       onPress: () => {
         props.navigation.closeDrawer();
-        // Add your help navigation
+        router.push('/help-support');
       },
     },
   ];
 
   return (
-    <>
-      <DrawerContentScrollView {...props} style={styles.container}>
-        {/* User Profile Section */}
+    <SafeAreaView style={styles.drawerContainer} edges={['bottom']}>
+      <DrawerContentScrollView 
+        {...props} 
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* User Profile Section - Compact */}
         <View style={styles.profileSection}>
           <View style={styles.avatarContainer}>
-            <Ionicons name="person-circle" size={60} color="#3B82F6" />
+            <Ionicons name="person-circle" size={50} color="#3B82F6" />
           </View>
-          <Text style={styles.userName}>{user?.name || 'User'}</Text>
-          <Text style={styles.userEmail}>{user?.email || 'user@example.com'}</Text>
+          <View style={styles.userInfo}>
+            <Text style={styles.userName} numberOfLines={1}>
+              {user?.name || 'User'}
+            </Text>
+            <Text style={styles.userEmail} numberOfLines={1}>
+              {user?.email || 'user@example.com'}
+            </Text>
+          </View>
         </View>
 
         {/* Menu Items */}
@@ -88,34 +91,24 @@ const CustomDrawer = (props: any) => {
               key={index}
               style={styles.menuItem}
               onPress={item.onPress}
+              activeOpacity={0.6}
             >
-              <View style={styles.menuIconContainer}>
-                <Ionicons name={item.icon as any} size={20} color="#3B82F6" />
-              </View>
+              <Ionicons name={item.icon as any} size={22} color="#3B82F6" />
               <Text style={styles.menuText}>{item.title}</Text>
-              <Ionicons name="chevron-forward" size={16} color="#9CA3AF" />
+              <Ionicons name="chevron-forward" size={18} color="#D1D5DB" />
             </TouchableOpacity>
           ))}
         </View>
       </DrawerContentScrollView>
 
-      {/* Bottom Buttons Container */}
-      <View style={styles.bottomContainer}>
-        {/* Delete Account Button */}
-        <TouchableOpacity 
-          style={styles.deleteButton} 
-          onPress={() => setShowDeleteModal(true)}
-        >
-          <Ionicons name="trash-outline" size={20} color="#FFFFFF" />
-          <Text style={styles.deleteButtonText}>Delete Account</Text>
-        </TouchableOpacity>
-
-        {/* Logout Button */}
+      {/* Bottom Logout Button - Fixed */}
+      <View style={styles.logoutContainer}>
         <TouchableOpacity 
           style={styles.logoutButton} 
           onPress={() => setShowLogoutModal(true)}
+          activeOpacity={0.7}
         >
-          <Ionicons name="log-out-outline" size={20} color="#FFFFFF" />
+          <Ionicons name="log-out-outline" size={20} color="#EF4444" />
           <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
       </View>
@@ -130,8 +123,8 @@ const CustomDrawer = (props: any) => {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
-            <View style={styles.modalIconContainer}>
-              <Ionicons name="log-out" size={48} color="#EF4444" />
+            <View style={styles.modalIcon}>
+              <Ionicons name="log-out" size={36} color="#EF4444" />
             </View>
             
             <Text style={styles.modalTitle}>Logout</Text>
@@ -139,159 +132,109 @@ const CustomDrawer = (props: any) => {
               Are you sure you want to logout?
             </Text>
 
-            <View style={styles.modalButtonContainer}>
+            <View style={styles.modalButtons}>
               <TouchableOpacity
-                style={styles.cancelButton}
+                style={styles.cancelBtn}
                 onPress={() => setShowLogoutModal(false)}
+                activeOpacity={0.7}
               >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+                <Text style={styles.cancelText}>Cancel</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={styles.confirmButton}
+                style={styles.confirmBtn}
                 onPress={handleLogout}
+                activeOpacity={0.7}
               >
-                <Text style={styles.confirmButtonText}>Yes, Logout</Text>
+                <Text style={styles.confirmText}>Logout</Text>
               </TouchableOpacity>
             </View>
           </View>
         </View>
       </Modal>
-
-      {/* Delete Account Confirmation Modal */}
-      <Modal
-        visible={showDeleteModal}
-        transparent={true}
-        animationType="fade"
-        statusBarTranslucent={true}
-        onRequestClose={() => setShowDeleteModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <View style={[styles.modalIconContainer, { backgroundColor: '#FEE2E2' }]}>
-              <Ionicons name="trash" size={48} color="#DC2626" />
-            </View>
-            
-            <Text style={styles.modalTitle}>Delete Account</Text>
-            <Text style={styles.modalMessage}>
-              Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently lost.
-            </Text>
-
-            <View style={styles.modalButtonContainer}>
-              <TouchableOpacity
-                style={styles.cancelButton}
-                onPress={() => setShowDeleteModal(false)}
-              >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.confirmButton, { backgroundColor: '#DC2626' }]}
-                onPress={handleDeleteAccount}
-              >
-                <Text style={styles.confirmButtonText}>Delete Account</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
-    </>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  drawerContainer: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#FFFFFF',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
   },
   profileSection: {
-    backgroundColor: '#FFFFFF',
-    padding: 12,
+    flexDirection: 'row',
     alignItems: 'center',
+    padding: 16,
+    backgroundColor: '#F9FAFB',
     borderBottomWidth: 1,
     borderBottomColor: '#E5E7EB',
-    marginBottom: 8,
   },
   avatarContainer: {
-    marginBottom: 6,
+    marginRight: 12,
+  },
+  userInfo: {
+    flex: 1,
   },
   userName: {
-    fontSize: 17,
-    fontWeight: 'bold',
+    fontSize: 16,
+    fontWeight: '600',
     color: '#1F2937',
     marginBottom: 2,
   },
   userEmail: {
-    fontSize: 12,
+    fontSize: 13,
     color: '#6B7280',
   },
   menuContainer: {
-    paddingHorizontal: 8,
-    marginBottom: 8,
+    paddingTop: 8,
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    padding: 10,
-    borderRadius: 8,
-    marginBottom: 4,
-  },
-  menuIconContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#EFF6FF',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 8,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
   },
   menuText: {
     flex: 1,
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1F2937',
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#374151',
+    marginLeft: 16,
   },
-  bottomContainer: {
-    padding: 8,
+  logoutContainer: {
+    padding: 16,
     borderTopWidth: 1,
     borderTopColor: '#E5E7EB',
     backgroundColor: '#FFFFFF',
   },
   logoutButton: {
-    backgroundColor: '#EF4444',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 12,
+    paddingVertical: 12,
+    backgroundColor: '#FEF2F2',
     borderRadius: 8,
-    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#FEE2E2',
   },
   logoutText: {
-    color: '#FFFFFF',
+    color: '#EF4444',
     fontSize: 15,
-    fontWeight: 'bold',
-    marginLeft: 6,
-  },
-  deleteButton: {
-    backgroundColor: '#DC2626',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 8,
-  },
-  deleteButtonText: {
-    color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: 'bold',
-    marginLeft: 6,
+    fontWeight: '600',
+    marginLeft: 8,
   },
   // Modal Styles
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
@@ -300,67 +243,58 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 24,
-    width: '100%',
-    maxWidth: 340,
+    width: '85%',
+    maxWidth: 320,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
   },
-  modalIconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#FEE2E2',
+  modalIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: '#FEF2F2',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
   },
   modalTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
+    fontSize: 18,
+    fontWeight: '700',
     color: '#1F2937',
     marginBottom: 8,
   },
   modalMessage: {
-    fontSize: 15,
+    fontSize: 14,
     color: '#6B7280',
     textAlign: 'center',
-    marginBottom: 24,
-    lineHeight: 22,
+    marginBottom: 20,
   },
-  modalButtonContainer: {
+  modalButtons: {
     flexDirection: 'row',
     gap: 12,
     width: '100%',
   },
-  cancelButton: {
+  cancelBtn: {
     flex: 1,
     backgroundColor: '#F3F4F6',
-    padding: 14,
-    borderRadius: 10,
+    paddingVertical: 12,
+    borderRadius: 8,
     alignItems: 'center',
   },
-  cancelButtonText: {
+  cancelText: {
     color: '#4B5563',
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '600',
   },
-  confirmButton: {
+  confirmBtn: {
     flex: 1,
     backgroundColor: '#EF4444',
-    padding: 14,
-    borderRadius: 10,
+    paddingVertical: 12,
+    borderRadius: 8,
     alignItems: 'center',
   },
-  confirmButtonText: {
+  confirmText: {
     color: '#FFFFFF',
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '600',
   },
 });
