@@ -1,11 +1,13 @@
 // app/help-support.tsx
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useState } from 'react';
 import { Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const HelpSupportScreen = () => {
   const router = useRouter();
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
   const handleEmail = () => {
     Linking.openURL('mailto:support@roommalik.com');
@@ -17,6 +19,10 @@ const HelpSupportScreen = () => {
 
   const handleWhatsApp = () => {
     Linking.openURL('https://wa.me/7069472565');
+  };
+
+  const toggleFaq = (index: number) => {
+    setExpandedIndex(expandedIndex === index ? null : index);
   };
 
   const faqData = [
@@ -113,13 +119,34 @@ const HelpSupportScreen = () => {
             <Text style={styles.faqTitle}>Frequently Asked Questions</Text>
             
             {faqData.map((faq, index) => (
-              <View key={index} style={styles.faqCard}>
+              <TouchableOpacity
+                key={index}
+                style={[
+                  styles.faqCard,
+                  expandedIndex === index && styles.faqCardExpanded
+                ]}
+                onPress={() => toggleFaq(index)}
+                activeOpacity={0.7}
+              >
                 <View style={styles.faqHeader}>
-                  <Ionicons name="help-circle-outline" size={20} color="#3B82F6" />
+                  <Ionicons 
+                    name="help-circle-outline" 
+                    size={20} 
+                    color="#3B82F6" 
+                  />
                   <Text style={styles.faqQuestion}>{faq.question}</Text>
+                  <Ionicons 
+                    name={expandedIndex === index ? "chevron-up" : "chevron-down"} 
+                    size={20} 
+                    color="#6B7280" 
+                  />
                 </View>
-                <Text style={styles.faqAnswer}>{faq.answer}</Text>
-              </View>
+                {expandedIndex === index && (
+                  <View style={styles.faqAnswerContainer}>
+                    <Text style={styles.faqAnswer}>{faq.answer}</Text>
+                  </View>
+                )}
+              </TouchableOpacity>
             ))}
           </View>
 
@@ -247,15 +274,18 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginBottom: 12,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  faqCardExpanded: {
+    backgroundColor: '#FFFFFF',
   },
   faqHeader: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 8,
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   faqQuestion: {
     flex: 1,
@@ -263,12 +293,19 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#1F2937',
     marginLeft: 8,
+    marginRight: 8,
+  },
+  faqAnswerContainer: {
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#E5E7EB',
   },
   faqAnswer: {
     fontSize: 14,
-    color: '#6B7280',
+    color: '#4B5563',
     lineHeight: 20,
-    marginLeft: 28,
+    paddingLeft: 28,
   },
   supportHours: {
     backgroundColor: '#FFFFFF',
