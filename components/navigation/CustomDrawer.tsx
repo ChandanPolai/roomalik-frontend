@@ -24,7 +24,7 @@ const CustomDrawer = (props: any) => {
       icon: 'person-outline',
       onPress: () => {
         props.navigation.closeDrawer();
-        router.push('/profile');
+        props.navigation.navigate('ProfileScreen');
       },
     },
     {
@@ -32,7 +32,7 @@ const CustomDrawer = (props: any) => {
       icon: 'wallet-outline',
       onPress: () => {
         props.navigation.closeDrawer();
-        router.push('/payment');
+        props.navigation.navigate('PaymentScreen');
       },
     },
     {
@@ -40,7 +40,7 @@ const CustomDrawer = (props: any) => {
       icon: 'shield-checkmark-outline',
       onPress: () => {
         props.navigation.closeDrawer();
-        router.push('/privacy-policy');
+        props.navigation.navigate('PrivacyPolicyScreen');
       },
     },
     {
@@ -48,7 +48,7 @@ const CustomDrawer = (props: any) => {
       icon: 'document-text-outline',
       onPress: () => {
         props.navigation.closeDrawer();
-        router.push('/terms-conditions');
+        props.navigation.navigate('TermsConditionsScreen');
       },
     },
     {
@@ -56,7 +56,7 @@ const CustomDrawer = (props: any) => {
       icon: 'help-circle-outline',
       onPress: () => {
         props.navigation.closeDrawer();
-        router.push('/help-support');
+        props.navigation.navigate('HelpSupportScreen');
       },
     },
   ];
