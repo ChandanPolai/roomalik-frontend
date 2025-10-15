@@ -47,102 +47,113 @@ const HelpSupportScreen = () => {
   ];
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#1F2937" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Help & Support</Text>
-        <View style={styles.placeholder} />
-      </View>
-
-      {/* Content */}
-      <ScrollView 
-        style={styles.scrollView}
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.iconContainer}>
-          <Ionicons name="help-circle" size={60} color="#3B82F6" />
+    <View style={styles.mainContainer}>
+      {/* Header with SafeArea */}
+      <SafeAreaView style={styles.headerSafeArea} edges={['top']}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Help & Support</Text>
+          <View style={styles.placeholder} />
         </View>
+      </SafeAreaView>
 
-        <Text style={styles.subtitle}>We're here to help you!</Text>
+      {/* Content Area */}
+      <SafeAreaView style={styles.contentSafeArea} edges={['left', 'right', 'bottom']}>
+        <ScrollView 
+          style={styles.scrollView}
+          contentContainerStyle={styles.content}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.iconContainer}>
+            <Ionicons name="help-circle" size={60} color="#3B82F6" />
+          </View>
 
-        {/* Contact Options */}
-        <View style={styles.contactOptions}>
-          <TouchableOpacity style={styles.contactCard} onPress={handleEmail}>
-            <View style={styles.contactIcon}>
-              <Ionicons name="mail" size={24} color="#3B82F6" />
-            </View>
-            <View style={styles.contactInfo}>
-              <Text style={styles.contactLabel}>Email Us</Text>
-              <Text style={styles.contactValue}>support@roommalik.com</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
-          </TouchableOpacity>
+          <Text style={styles.subtitle}>We're here to help you!</Text>
 
-          <TouchableOpacity style={styles.contactCard} onPress={handlePhone}>
-            <View style={styles.contactIcon}>
-              <Ionicons name="call" size={24} color="#10B981" />
-            </View>
-            <View style={styles.contactInfo}>
-              <Text style={styles.contactLabel}>Call Us</Text>
-              <Text style={styles.contactValue}>+91 98765 43210</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.contactCard} onPress={handleWhatsApp}>
-            <View style={styles.contactIcon}>
-              <Ionicons name="logo-whatsapp" size={24} color="#25D366" />
-            </View>
-            <View style={styles.contactInfo}>
-              <Text style={styles.contactLabel}>WhatsApp</Text>
-              <Text style={styles.contactValue}>Chat with us</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
-          </TouchableOpacity>
-        </View>
-
-        {/* FAQ Section */}
-        <View style={styles.faqSection}>
-          <Text style={styles.faqTitle}>Frequently Asked Questions</Text>
-          
-          {faqData.map((faq, index) => (
-            <View key={index} style={styles.faqCard}>
-              <View style={styles.faqHeader}>
-                <Ionicons name="help-circle-outline" size={20} color="#3B82F6" />
-                <Text style={styles.faqQuestion}>{faq.question}</Text>
+          {/* Contact Options */}
+          <View style={styles.contactOptions}>
+            <TouchableOpacity style={styles.contactCard} onPress={handleEmail}>
+              <View style={styles.contactIcon}>
+                <Ionicons name="mail" size={24} color="#3B82F6" />
               </View>
-              <Text style={styles.faqAnswer}>{faq.answer}</Text>
-            </View>
-          ))}
-        </View>
+              <View style={styles.contactInfo}>
+                <Text style={styles.contactLabel}>Email Us</Text>
+                <Text style={styles.contactValue}>support@roommalik.com</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+            </TouchableOpacity>
 
-        {/* Support Hours */}
-        <View style={styles.supportHours}>
-          <Text style={styles.supportTitle}>Support Hours</Text>
-          <View style={styles.hoursRow}>
-            <Ionicons name="time-outline" size={20} color="#6B7280" />
-            <Text style={styles.hoursText}>Monday - Friday: 9:00 AM - 6:00 PM</Text>
+            <TouchableOpacity style={styles.contactCard} onPress={handlePhone}>
+              <View style={styles.contactIcon}>
+                <Ionicons name="call" size={24} color="#10B981" />
+              </View>
+              <View style={styles.contactInfo}>
+                <Text style={styles.contactLabel}>Call Us</Text>
+                <Text style={styles.contactValue}>+91 98765 43210</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.contactCard} onPress={handleWhatsApp}>
+              <View style={styles.contactIcon}>
+                <Ionicons name="logo-whatsapp" size={24} color="#25D366" />
+              </View>
+              <View style={styles.contactInfo}>
+                <Text style={styles.contactLabel}>WhatsApp</Text>
+                <Text style={styles.contactValue}>Chat with us</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+            </TouchableOpacity>
           </View>
-          <View style={styles.hoursRow}>
-            <Ionicons name="time-outline" size={20} color="#6B7280" />
-            <Text style={styles.hoursText}>Saturday: 10:00 AM - 4:00 PM</Text>
+
+          {/* FAQ Section */}
+          <View style={styles.faqSection}>
+            <Text style={styles.faqTitle}>Frequently Asked Questions</Text>
+            
+            {faqData.map((faq, index) => (
+              <View key={index} style={styles.faqCard}>
+                <View style={styles.faqHeader}>
+                  <Ionicons name="help-circle-outline" size={20} color="#3B82F6" />
+                  <Text style={styles.faqQuestion}>{faq.question}</Text>
+                </View>
+                <Text style={styles.faqAnswer}>{faq.answer}</Text>
+              </View>
+            ))}
           </View>
-          <View style={styles.hoursRow}>
-            <Ionicons name="time-outline" size={20} color="#6B7280" />
-            <Text style={styles.hoursText}>Sunday: Closed</Text>
+
+          {/* Support Hours */}
+          <View style={styles.supportHours}>
+            <Text style={styles.supportTitle}>Support Hours</Text>
+            <View style={styles.hoursRow}>
+              <Ionicons name="time-outline" size={20} color="#6B7280" />
+              <Text style={styles.hoursText}>Monday - Friday: 9:00 AM - 6:00 PM</Text>
+            </View>
+            <View style={styles.hoursRow}>
+              <Ionicons name="time-outline" size={20} color="#6B7280" />
+              <Text style={styles.hoursText}>Saturday: 10:00 AM - 4:00 PM</Text>
+            </View>
+            <View style={styles.hoursRow}>
+              <Ionicons name="time-outline" size={20} color="#6B7280" />
+              <Text style={styles.hoursText}>Sunday: Closed</Text>
+            </View>
           </View>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+        </ScrollView>
+      </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  mainContainer: {
+    flex: 1,
+    backgroundColor: '#3B82F6',
+  },
+  headerSafeArea: {
+    backgroundColor: '#3B82F6',
+  },
+  contentSafeArea: {
     flex: 1,
     backgroundColor: '#F9FAFB',
   },
@@ -150,19 +161,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    backgroundColor: '#3B82F6',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-    backgroundColor: '#FFFFFF',
   },
   backButton: {
     padding: 4,
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#1F2937',
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    flex: 1,
+    textAlign: 'center',
   },
   placeholder: {
     width: 32,
