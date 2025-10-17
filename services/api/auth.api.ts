@@ -1,5 +1,5 @@
 // services/api/auth.api.ts
-import { AuthResponse, LoginCredentials, SignupCredentials } from '../../types';
+import { AuthResponse, LoginCredentials, SignupCredentials, ResetPasswordCredentials } from '../../types';
 import logger from '../logger/logger.service';
 import apiClient from './apiClient';
 
@@ -62,6 +62,22 @@ class AuthApi {
       throw this.handleError(error);
     }
   }
+
+
+  /**
+ * Reset password
+ */
+async resetPassword(credentials: ResetPasswordCredentials): Promise<AuthResponse> {
+  try {
+    logger.authAction('Reset password attempt', { email: credentials.email });
+    const response = await apiClient.post<AuthResponse>('/auth/reset-password', credentials);
+    logger.authAction('Reset password successful', { email: credentials.email });
+    return response;
+  } catch (error: any) {
+    logger.authError(error, 'Reset Password');
+    throw this.handleError(error);
+  }
+}
 
   /**
    * Handle API errors

@@ -281,21 +281,16 @@ const LoginScreen = () => {
           </View>
 
           {/* Forgot Password */}
-          <TouchableOpacity
-            className="items-end mb-6"
-            onPress={() => {
-              Toast.show({
-                type: 'info',
-                text1: 'Coming Soon',
-                text2: 'Forgot password feature will be available soon',
-                position: 'top',
-              });
-            }}
-          >
-            <Text className="text-blue-500 font-medium text-sm">
-              Forgot Password?
-            </Text>
-          </TouchableOpacity>
+<TouchableOpacity
+  className="items-end mb-6"
+  onPress={() => {
+    router.push('/auth/forgot-password');  // Changed this line
+  }}
+>
+  <Text className="text-blue-500 font-medium text-sm">
+    Forgot Password?
+  </Text>
+</TouchableOpacity>
 
           {/* Login Button */}
           <TouchableOpacity

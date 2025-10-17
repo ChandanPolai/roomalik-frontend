@@ -42,6 +42,11 @@ export interface SignupCredentials {
   password: string;
 }
 
+export interface ResetPasswordCredentials {
+  email: string;
+  newPassword: string;
+}
+
 // API Response Types
 export interface ApiResponse<T = any> {
   success: boolean;
@@ -54,6 +59,7 @@ export interface ApiResponse<T = any> {
 export type RootStackParamList = {
   'auth/login': undefined;
   'auth/signup': undefined;
+  'auth/forgot-password': undefined; 
   '(tabs)': undefined;
   profile: undefined;
 };
