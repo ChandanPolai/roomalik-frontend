@@ -54,7 +54,7 @@ class AuthApi {
   async getProfile(): Promise<any> {
     try {
       logger.authAction('Get profile attempt');
-      const response = await apiClient.get('/auth/profile');
+      const response = await apiClient.get('/profile');
       logger.authAction('Get profile successful');
       return response;
     } catch (error: any) {

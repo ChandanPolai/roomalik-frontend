@@ -116,6 +116,8 @@ const LoginScreen = () => {
           name: response.data.name,
           email: response.data.email,
           phone: response.data.phone,
+          avatar: response.data.avatar,
+          role: response.data.role,
         };
         
         logger.uiAction('Login successful, showing success toast', 'LoginScreen', { userName: userData.name });
@@ -168,17 +170,17 @@ const LoginScreen = () => {
       >
         <View className="flex-1 px-6 pt-16 pb-8">
           {/* Header */}
-          <View className="mb-8">
-            <Text className="text-3xl font-bold text-gray-900 mb-2">
-              Get Started With your
-            </Text>
-            <Text className="text-3xl font-bold text-gray-900 mb-2">
-              Fitness Journey
-            </Text>
-            <Text className="text-gray-500 text-base mt-1">
-              Sign in to your Account
-            </Text>
-          </View>
+      <View className="mb-8">
+  <Text className="text-3xl font-bold text-gray-900 mb-2">
+    Welcome to Your
+  </Text>
+  <Text className="text-3xl font-bold text-gray-900 mb-2">
+    Property Management Hub
+  </Text>
+  <Text className="text-gray-500 text-base mt-1">
+    Sign in to manage your rental properties
+  </Text>
+</View>
 
           {/* Tab Switcher */}
           <View className="flex-row mb-8 bg-gray-100 rounded-full p-1">
@@ -368,7 +370,7 @@ const LoginScreen = () => {
           {/* Sign Up Link */}
           <View className="flex-row justify-center items-center">
             <Text className="text-gray-600 text-sm">
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
             </Text>
             <TouchableOpacity
               onPress={() => {

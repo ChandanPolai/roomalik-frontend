@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { AuthContextType, User } from '../types';
 import { STORAGE_KEYS } from '../constants/config';
 import storageService from '../services/storage/storage.service';
+import authApi from '../services/api/auth.api';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -24,7 +25,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (savedToken) {
         setToken(savedToken);
-        setUser(savedUser);
+        
+        // Try to fetch fresh profile data from API
+        try {
+          const profileResponse = await authApi.getProfile();
+          const freshUserData = profileResponse.data;
+          
+          console.log('🔍 Profile API Response:', profileResponse);
+          console.log('🔍 Fresh User Data:', freshUserData);
+          console.log('🔍 Avatar field:', freshUserData?.avatar);
+          
+          // Update stored user data with fresh data from API
+          await storageService.setObject(STORAGE_KEYS.USER_DATA, freshUserData);
+          setUser(freshUserData);
+          console.log('✅ Fresh profile data fetched from API');
+        } catch (profileError) {
+          console.warn('Failed to fetch fresh profile, using cached data:', profileError);
+          // Fallback to cached user data if API call fails
+          setUser(savedUser);
+        }
+        
         setIsLoggedIn(true);
       }
     } catch (error) {
@@ -41,6 +61,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (userData) {
         await storageService.setObject(STORAGE_KEYS.USER_DATA, userData);
         setUser(userData);
+      } else {
+        // If no userData provided, fetch fresh profile data
+        try {
+          const profileResponse = await authApi.getProfile();
+          const freshUserData = profileResponse.data;
+          
+          console.log('🔍 Login Profile API Response:', profileResponse);
+          console.log('🔍 Login Fresh User Data:', freshUserData);
+          console.log('🔍 Login Avatar field:', freshUserData?.avatar);
+          
+          await storageService.setObject(STORAGE_KEYS.USER_DATA, freshUserData);
+          setUser(freshUserData);
+          console.log('✅ Fresh profile data fetched after login');
+        } catch (profileError) {
+          console.warn('Failed to fetch profile after login:', profileError);
+        }
       }
 
       setToken(authToken);
@@ -54,6 +90,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
+      // Call logout API first
+      try {
+        await authApi.logout();
+        console.log('✅ Logout API called successfully');
+      } catch (apiError) {
+        console.warn('Logout API call failed, continuing with local logout:', apiError);
+      }
+      
+      // Clear local storage and state
       await storageService.removeItem(STORAGE_KEYS.AUTH_TOKEN);
       await storageService.removeItem(STORAGE_KEYS.USER_DATA);
       

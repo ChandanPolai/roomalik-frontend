@@ -194,6 +194,8 @@ const SignupScreen = () => {
           name: response.data.name,
           email: response.data.email,
           phone: response.data.phone,
+          avatar: response.data.avatar,
+          role: response.data.role,
         };
         
         Toast.show({
