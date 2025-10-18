@@ -3,14 +3,25 @@ import { Ionicons } from '@expo/vector-icons';
 import { DrawerContentScrollView } from '@react-navigation/drawer';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { API_CONFIG } from '../../constants/config';
 import { useAuth } from '../../utils/AuthProvider';
 
 const CustomDrawer = (props: any) => {
   const { user, logout } = useAuth();
   const router = useRouter();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+  // Helper function to get full image URL
+  const getImageUrl = (url: string) => {
+    // If it's already a full URL or local file, return as is
+    if (url.startsWith('http') || url.startsWith('file://') || url.startsWith('content://')) {
+      return url;
+    }
+    // Otherwise, prepend the image URL
+    return `${API_CONFIG.IMAGE_URL}${url}`;
+  };
 
   const handleLogout = async () => {
     setShowLogoutModal(false);
@@ -48,7 +59,14 @@ const CustomDrawer = (props: any) => {
         {/* User Profile Section - Compact */}
         <View style={styles.profileSection}>
           <View style={styles.avatarContainer}>
-            <Ionicons name="person-circle" size={50} color="#3B82F6" />
+            {user?.avatar ? (
+              <Image 
+                source={{ uri: getImageUrl(user.avatar) }} 
+                style={styles.avatar}
+              />
+            ) : (
+              <Ionicons name="person-circle" size={50} color="#3B82F6" />
+            )}
           </View>
           <View style={styles.userInfo}>
             <Text style={styles.userName} numberOfLines={1}>
@@ -153,6 +171,13 @@ const styles = StyleSheet.create({
   },
   avatarContainer: {
     marginRight: 12,
+  },
+  avatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    borderWidth: 2,
+    borderColor: '#3B82F6',
   },
   userInfo: {
     flex: 1,

@@ -85,7 +85,17 @@ class AuthApi {
   async updateProfile(profileData: any): Promise<any> {
     try {
       logger.authAction('Update profile attempt');
-      const response = await apiClient.put('/profile', profileData);
+      
+      // Check if profileData is FormData (for file uploads)
+      const isFormData = profileData instanceof FormData;
+      
+      const config = isFormData ? {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      } : {};
+      
+      const response = await apiClient.put('/profile', profileData, config);
       logger.authAction('Update profile successful');
       return response;
     } catch (error: any) {

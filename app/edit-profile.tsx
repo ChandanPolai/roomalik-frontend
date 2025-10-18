@@ -4,10 +4,13 @@ import * as ImagePicker from 'expo-image-picker';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Image, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Toast from 'react-native-toast-message';
+import { API_CONFIG } from '../constants/config';
 import { useAuth } from '../utils/AuthProvider';
 import authApi from '../services/api/auth.api';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 
 const EditProfileScreen = () => {
   const { user, updateUser } = useAuth();
@@ -19,6 +22,16 @@ const EditProfileScreen = () => {
     phone: user?.phone || '',
   });
   const [selectedImage, setSelectedImage] = useState<string | null>(user?.avatar || null);
+
+  // Helper function to get full image URL
+  const getImageUrl = (url: string) => {
+    // If it's already a full URL or local file, return as is
+    if (url.startsWith('http') || url.startsWith('file://') || url.startsWith('content://')) {
+      return url;
+    }
+    // Otherwise, prepend the image URL
+    return `${API_CONFIG.IMAGE_URL}${url}`;
+  };
 
   const pickImage = async () => {
     try {
@@ -143,12 +156,26 @@ const EditProfileScreen = () => {
 
     setLoading(true);
     try {
-      const profileData = {
-        ...formData,
-        avatar: selectedImage,
-      };
+      // Create FormData for file upload
+      const formDataToSend = new FormData();
+      formDataToSend.append('name', formData.name);
+      formDataToSend.append('phone', formData.phone);
       
-      const response = await authApi.updateProfile(profileData);
+      // Add image if selected
+      if (selectedImage && selectedImage !== user?.avatar) {
+        const imageUri = selectedImage;
+        const filename = imageUri.split('/').pop() || 'profile.jpg';
+        const match = /\.(\w+)$/.exec(filename);
+        const type = match ? `image/${match[1]}` : 'image/jpeg';
+        
+        formDataToSend.append('avatar', {
+          uri: imageUri,
+          name: filename,
+          type: type,
+        } as any);
+      }
+      
+      const response = await authApi.updateProfile(formDataToSend);
       updateUser(response.data);
       
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -178,8 +205,8 @@ const EditProfileScreen = () => {
 
   return (
     <View style={styles.mainContainer}>
-      {/* Header */}
-      <SafeAreaView style={styles.headerSafeArea}>
+      {/* Header with SafeArea */}
+      <SafeAreaView style={styles.headerSafeArea} edges={['top']}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
             <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
@@ -189,18 +216,18 @@ const EditProfileScreen = () => {
         </View>
       </SafeAreaView>
 
-      {/* Content */}
-      <SafeAreaView style={styles.contentSafeArea}>
-        <ScrollView 
-          style={styles.scrollView}
-          contentContainerStyle={styles.content}
-          showsVerticalScrollIndicator={false}
-        >
+      {/* Content Area */}
+      <SafeAreaView style={styles.contentSafeArea} edges={['left', 'right', 'bottom']}>
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
           {/* Profile Picture */}
           <View style={styles.avatarSection}>
             <View style={styles.avatarContainer}>
               <Image 
-                source={{ uri: selectedImage || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user?.name || 'User') + '&size=200&background=3B82F6&color=fff' }}
+                source={{ uri: selectedImage ? (selectedImage.startsWith('http') || selectedImage.startsWith('file://') || selectedImage.startsWith('content://') ? selectedImage : `${API_CONFIG.IMAGE_URL}${selectedImage}`) : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user?.name || 'User') + '&size=200&background=3B82F6&color=fff' }}
                 style={styles.avatar}
               />
               <TouchableOpacity 
@@ -262,7 +289,7 @@ const EditProfileScreen = () => {
               {loading ? 'Updating...' : 'Save Changes'}
             </Text>
           </TouchableOpacity>
-        </ScrollView>
+      </ScrollView>
       </SafeAreaView>
       
       <Toast />

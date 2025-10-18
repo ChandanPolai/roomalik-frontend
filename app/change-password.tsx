@@ -3,9 +3,10 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import {  ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import authApi from '../services/api/auth.api';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const ChangePasswordScreen = () => {
   const router = useRouter();
@@ -119,7 +120,7 @@ const ChangePasswordScreen = () => {
   return (
     <View style={styles.mainContainer}>
       {/* Header */}
-      <SafeAreaView style={styles.headerSafeArea}>
+      <SafeAreaView style={styles.headerSafeArea} edges={['top']}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
             <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
