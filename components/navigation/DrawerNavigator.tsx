@@ -10,6 +10,8 @@ import PaymentScreen from '../../app/payment';
 import PrivacyPolicyScreen from '../../app/privacy-policy';
 import ProfileScreen from '../../app/profile';
 import TermsConditionsScreen from '../../app/terms-conditions';
+import EditProfileScreen from '../../app/edit-profile';
+import ChangePasswordScreen from '../../app/change-password';
 
 const Drawer = createDrawerNavigator();
 
@@ -79,6 +81,24 @@ const DrawerNavigator = () => {
       <Drawer.Screen
         name="HelpSupportScreen"
         component={HelpSupportScreen}
+        options={{
+          drawerItemStyle: { display: 'none' },
+          swipeEnabled: false,
+        }}
+      />
+      
+      <Drawer.Screen
+        name="EditProfileScreen"
+        component={EditProfileScreen}
+        options={{
+          drawerItemStyle: { display: 'none' },
+          swipeEnabled: false,
+        }}
+      />
+      
+      <Drawer.Screen
+        name="ChangePasswordScreen"
+        component={ChangePasswordScreen}
         options={{
           drawerItemStyle: { display: 'none' },
           swipeEnabled: false,

@@ -11,6 +11,7 @@ export interface User {
   name: string;
   email: string;
   phone: string;
+  avatar?: string;
   createdAt?: string;
 }
 
@@ -80,4 +81,5 @@ export interface AuthContextType {
   token: string | null;
   login: (token: string, user?: User) => Promise<void>;
   logout: () => Promise<void>;
+  updateUser: (userData: User) => Promise<void>;
 }

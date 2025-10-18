@@ -1,24 +1,14 @@
 // app/profile.tsx
 import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
-import { Alert, Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { useAuth } from '../utils/AuthProvider';
 
-const ProfileScreen = () => {
-  const { logout } = useAuth();
+const ProfileScreen = ({ navigation }: any) => {
+  const { logout, user } = useAuth();
   const router = useRouter();
-
-  // Dummy user data
-  const userData = {
-    name: 'Rajesh Kumar',
-    email: 'rajesh.kumar@example.com',
-    phone: '+91 98765 43210',
-    memberSince: 'January 2023',
-    totalProperties: 12,
-    totalTenants: 28,
-    totalRevenue: '₹8,45,000',
-    avatar: 'https://ui-avatars.com/api/?name=Rajesh+Kumar&size=200&background=3B82F6&color=fff',
-  };
 
   const menuItems = [
     {
@@ -26,42 +16,14 @@ const ProfileScreen = () => {
       title: 'Edit Profile',
       subtitle: 'Update your personal information',
       color: '#3B82F6',
-      onPress: () => Alert.alert('Edit Profile', 'Coming soon!'),
+      onPress: () => navigation.navigate('EditProfileScreen'),
     },
     {
-      icon: 'home-outline',
-      title: 'My Properties',
-      subtitle: `${userData.totalProperties} properties`,
+      icon: 'key-outline',
+      title: 'Change Password',
+      subtitle: 'Update your password',
       color: '#10B981',
-      onPress: () => router.push('/(tabs)/plots'),
-    },
-    {
-      icon: 'people-outline',
-      title: 'My Tenants',
-      subtitle: `${userData.totalTenants} active tenants`,
-      color: '#8B5CF6',
-      onPress: () => router.push('/(tabs)/tenants'),
-    },
-    {
-      icon: 'card-outline',
-      title: 'Payment History',
-      subtitle: 'View all transactions',
-      color: '#F59E0B',
-      onPress: () => router.push('/(tabs)/payment'),
-    },
-    {
-      icon: 'notifications-outline',
-      title: 'Notifications',
-      subtitle: 'Manage your alerts',
-      color: '#EF4444',
-      onPress: () => router.push('/notification'),
-    },
-    {
-      icon: 'settings-outline',
-      title: 'Settings',
-      subtitle: 'App preferences',
-      color: '#6B7280',
-      onPress: () => Alert.alert('Settings', 'Coming soon!'),
+      onPress: () => navigation.navigate('ChangePasswordScreen'),
     },
   ];
 
@@ -69,39 +31,49 @@ const ProfileScreen = () => {
     {
       icon: 'help-circle-outline',
       title: 'Help & Support',
-      onPress: () => router.push('/help-support'),
+      onPress: () => navigation.navigate('HelpSupportScreen'),
     },
     {
       icon: 'shield-checkmark-outline',
       title: 'Privacy Policy',
-      onPress: () => router.push('/privacy-policy'),
+      onPress: () => navigation.navigate('PrivacyPolicyScreen'),
     },
     {
       icon: 'document-text-outline',
       title: 'Terms & Conditions',
-      onPress: () => router.push('/terms-conditions'),
+      onPress: () => navigation.navigate('TermsConditionsScreen'),
     },
   ];
 
   const handleLogout = () => {
-    Alert.alert(
-      'Logout',
-      'Are you sure you want to logout?',
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {
-          text: 'Logout',
-          style: 'destructive',
-          onPress: async () => {
-            await logout();
-            router.replace('/auth/login');
-          },
-        },
-      ]
-    );
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    
+    Toast.show({
+      type: 'info',
+      text1: 'Logout Confirmation',
+      text2: 'Are you sure you want to logout?',
+      position: 'top',
+      visibilityTime: 3000,
+      onPress: async () => {
+        try {
+          await logout();
+          router.replace('/auth/login');
+          Toast.show({
+            type: 'success',
+            text1: 'Logged Out',
+            text2: 'You have been logged out successfully',
+            position: 'top',
+          });
+        } catch (error) {
+          Toast.show({
+            type: 'error',
+            text1: 'Logout Failed',
+            text2: 'Failed to logout. Please try again.',
+            position: 'top',
+          });
+        }
+      }
+    });
   };
 
   return (
@@ -124,7 +96,7 @@ const ProfileScreen = () => {
           <View style={styles.profileCard}>
             <View style={styles.avatarContainer}>
               <Image 
-                source={{ uri: userData.avatar }}
+                source={{ uri: user?.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user?.name || 'User') + '&size=200&background=3B82F6&color=fff' }}
                 style={styles.avatar}
               />
               <TouchableOpacity style={styles.editAvatarButton}>
@@ -132,27 +104,9 @@ const ProfileScreen = () => {
               </TouchableOpacity>
             </View>
             
-            <Text style={styles.userName}>{userData.name}</Text>
-            <Text style={styles.userEmail}>{userData.email}</Text>
-            <Text style={styles.memberSince}>Member since {userData.memberSince}</Text>
-
-            {/* Stats */}
-            <View style={styles.statsContainer}>
-              <View style={styles.statItem}>
-                <Text style={styles.statValue}>{userData.totalProperties}</Text>
-                <Text style={styles.statLabel}>Properties</Text>
-              </View>
-              <View style={styles.statDivider} />
-              <View style={styles.statItem}>
-                <Text style={styles.statValue}>{userData.totalTenants}</Text>
-                <Text style={styles.statLabel}>Tenants</Text>
-              </View>
-              <View style={styles.statDivider} />
-              <View style={styles.statItem}>
-                <Text style={styles.statValue}>{userData.totalRevenue}</Text>
-                <Text style={styles.statLabel}>Revenue</Text>
-              </View>
-            </View>
+            <Text style={styles.userName}>{user?.name || 'User'}</Text>
+            <Text style={styles.userEmail}>{user?.email || 'user@example.com'}</Text>
+            <Text style={styles.memberSince}>Member since {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'Recently'}</Text>
           </View>
 
           {/* Menu Items */}
@@ -212,6 +166,8 @@ const ProfileScreen = () => {
           <Text style={styles.appVersion}>Version 1.0.0</Text>
         </ScrollView>
       </SafeAreaView>
+      
+      <Toast />
     </View>
   );
 };
@@ -298,34 +254,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#9CA3AF',
     marginBottom: 16,
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-    width: '100%',
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
-  },
-  statItem: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  statValue: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#1F2937',
-    marginBottom: 4,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: '#6B7280',
-  },
-  statDivider: {
-    width: 1,
-    height: 40,
-    backgroundColor: '#E5E7EB',
   },
   menuSection: {
     marginBottom: 20,

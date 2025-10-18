@@ -65,19 +65,49 @@ class AuthApi {
 
 
   /**
- * Reset password
- */
-async resetPassword(credentials: ResetPasswordCredentials): Promise<AuthResponse> {
-  try {
-    logger.authAction('Reset password attempt', { email: credentials.email });
-    const response = await apiClient.post<AuthResponse>('/auth/reset-password', credentials);
-    logger.authAction('Reset password successful', { email: credentials.email });
-    return response;
-  } catch (error: any) {
-    logger.authError(error, 'Reset Password');
-    throw this.handleError(error);
+   * Reset password
+   */
+  async resetPassword(credentials: ResetPasswordCredentials): Promise<AuthResponse> {
+    try {
+      logger.authAction('Reset password attempt', { email: credentials.email });
+      const response = await apiClient.post<AuthResponse>('/auth/reset-password', credentials);
+      logger.authAction('Reset password successful', { email: credentials.email });
+      return response;
+    } catch (error: any) {
+      logger.authError(error, 'Reset Password');
+      throw this.handleError(error);
+    }
   }
-}
+
+  /**
+   * Update user profile
+   */
+  async updateProfile(profileData: any): Promise<any> {
+    try {
+      logger.authAction('Update profile attempt');
+      const response = await apiClient.put('/profile', profileData);
+      logger.authAction('Update profile successful');
+      return response;
+    } catch (error: any) {
+      logger.authError(error, 'Update Profile');
+      throw this.handleError(error);
+    }
+  }
+
+  /**
+   * Change password
+   */
+  async changePassword(passwordData: { currentPassword: string; newPassword: string }): Promise<any> {
+    try {
+      logger.authAction('Change password attempt');
+      const response = await apiClient.put('/change-password', passwordData);
+      logger.authAction('Change password successful');
+      return response;
+    } catch (error: any) {
+      logger.authError(error, 'Change Password');
+      throw this.handleError(error);
+    }
+  }
 
   /**
    * Handle API errors

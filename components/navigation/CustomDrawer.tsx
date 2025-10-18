@@ -35,30 +35,6 @@ const CustomDrawer = (props: any) => {
         props.navigation.navigate('PaymentScreen');
       },
     },
-    {
-      title: 'Privacy Policy',
-      icon: 'shield-checkmark-outline',
-      onPress: () => {
-        props.navigation.closeDrawer();
-        props.navigation.navigate('PrivacyPolicyScreen');
-      },
-    },
-    {
-      title: 'Terms & Conditions',
-      icon: 'document-text-outline',
-      onPress: () => {
-        props.navigation.closeDrawer();
-        props.navigation.navigate('TermsConditionsScreen');
-      },
-    },
-    {
-      title: 'Help & Support',
-      icon: 'help-circle-outline',
-      onPress: () => {
-        props.navigation.closeDrawer();
-        props.navigation.navigate('HelpSupportScreen');
-      },
-    },
   ];
 
   return (

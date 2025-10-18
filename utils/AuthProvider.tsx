@@ -67,6 +67,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const updateUser = async (userData: User) => {
+    try {
+      await storageService.setObject(STORAGE_KEYS.USER_DATA, userData);
+      setUser(userData);
+      console.log('✅ User data updated successfully');
+    } catch (error) {
+      console.error('Update user error:', error);
+      throw error;
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -76,6 +87,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         token,
         login,
         logout,
+        updateUser,
       }}
     >
       {children}
