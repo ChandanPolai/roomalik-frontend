@@ -120,6 +120,8 @@ const BottomTabs = () => {
       <Tabs.Screen name="auth/login" options={{ href: null }} />
       <Tabs.Screen name="auth/signup" options={{ href: null }} />
       <Tabs.Screen name="auth/forgot-password" options={{ href: null }} />
+      <Tabs.Screen name="edit-profile" options={{ href: null }} />
+      <Tabs.Screen name="change-password" options={{ href: null }} />
       <Tabs.Screen name="payment" options={{ href: null }} />
       <Tabs.Screen
         name="notification"
