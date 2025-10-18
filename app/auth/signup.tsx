@@ -10,6 +10,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Image
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Toast from 'react-native-toast-message';
@@ -490,48 +491,56 @@ const SignupScreen = () => {
             <View className="flex-1 h-px bg-gray-300" />
           </View>
 
-          {/* Social Login Buttons */}
-          <View className="flex-row justify-center space-x-4">
-            <TouchableOpacity
-              className="bg-white border border-gray-200 rounded-xl p-4 flex-1 mr-3 shadow-sm"
-              onPress={() => {
-                Toast.show({
-                  type: 'info',
-                  text1: 'Coming Soon',
-                  text2: 'Google signup will be available soon',
-                  position: 'top',
-                });
-              }}
-              activeOpacity={0.7}
-            >
-              <View className="flex-row items-center justify-center">
-                <Ionicons name="logo-google" size={20} color="#DB4437" />
-                <Text className="ml-2 text-gray-700 font-medium text-sm">
-                  Google
-                </Text>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              className="bg-white border border-gray-200 rounded-xl p-4 flex-1 shadow-sm"
-              onPress={() => {
-                Toast.show({
-                  type: 'info',
-                  text1: 'Coming Soon',
-                  text2: 'Apple signup will be available soon',
-                  position: 'top',
-                });
-              }}
-              activeOpacity={0.7}
-            >
-              <View className="flex-row items-center justify-center">
-                <Ionicons name="logo-apple" size={20} color="#000" />
-                <Text className="ml-2 text-gray-700 font-medium text-sm">
-                  Apple
-                </Text>
-              </View>
-            </TouchableOpacity>
-          </View>
+           {/* Social Login Buttons */}
+         <View className="flex-row justify-center space-x-4 mb-8">
+           <TouchableOpacity
+             className="bg-white border border-gray-200 rounded-xl p-4 flex-1 mr-3 shadow-sm"
+             onPress={() => {
+               Toast.show({
+                 type: 'info',
+                 text1: 'Coming Soon',
+                 text2: 'Google login will be available soon',
+                 position: 'top',
+               });
+             }}
+             activeOpacity={0.7}
+           >
+             <View className="flex-row items-center justify-center">
+               <Image 
+                 source={require('../../assets/images/google.png')} 
+                 style={{ width: 20, height: 20 }}
+                 resizeMode="contain"
+               />
+               <Text className="ml-2 text-gray-700 font-medium text-sm">
+                 Google
+               </Text>
+             </View>
+           </TouchableOpacity>
+         
+           <TouchableOpacity
+             className="bg-white border border-gray-200 rounded-xl p-4 flex-1 shadow-sm"
+             onPress={() => {
+               Toast.show({
+                 type: 'info',
+                 text1: 'Coming Soon',
+                 text2: 'Apple login will be available soon',
+                 position: 'top',
+               });
+             }}
+             activeOpacity={0.7}
+           >
+             <View className="flex-row items-center justify-center">
+               <Image 
+                 source={require('../../assets/images/apple-logo.png')} 
+                 style={{ width: 20, height: 20 }}
+                 resizeMode="contain"
+               />
+               <Text className="ml-2 text-gray-700 font-medium text-sm">
+                 Apple
+               </Text>
+             </View>
+           </TouchableOpacity>
+         </View>
         </View>
       </KeyboardAwareScrollView>
 

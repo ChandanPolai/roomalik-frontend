@@ -9,7 +9,8 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
-    View
+    View,
+    Image
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Toast from 'react-native-toast-message';
@@ -18,6 +19,7 @@ import authApi from '../../services/api/auth.api';
 import logger from '../../services/logger/logger.service';
 import { LoginCredentials } from '../../types';
 import { useAuth } from '../../utils/AuthProvider';
+
 
 const LoginScreen = () => {
   const [formData, setFormData] = useState<LoginCredentials>({
@@ -170,15 +172,15 @@ const LoginScreen = () => {
       >
         <View className="flex-1 px-6 pt-16 pb-8">
           {/* Header */}
-      <View className="mb-8">
+    <View className="mb-8">
   <Text className="text-3xl font-bold text-gray-900 mb-2">
-    Welcome to Your
+    Room Malik
   </Text>
-  <Text className="text-3xl font-bold text-gray-900 mb-2">
-    Property Management Hub
+  <Text className="text-xl text-gray-700 mb-4">
+    Smart Property Management Solution
   </Text>
   <Text className="text-gray-500 text-base mt-1">
-    Sign in to manage your rental properties
+    Sign in to continue
   </Text>
 </View>
 
@@ -325,47 +327,55 @@ const LoginScreen = () => {
           </View>
 
           {/* Social Login Buttons */}
-          <View className="flex-row justify-center space-x-4 mb-8">
-            <TouchableOpacity
-              className="bg-white border border-gray-200 rounded-xl p-4 flex-1 mr-3 shadow-sm"
-              onPress={() => {
-                Toast.show({
-                  type: 'info',
-                  text1: 'Coming Soon',
-                  text2: 'Google login will be available soon',
-                  position: 'top',
-                });
-              }}
-              activeOpacity={0.7}
-            >
-              <View className="flex-row items-center justify-center">
-                <Ionicons name="logo-google" size={20} color="#DB4437" />
-                <Text className="ml-2 text-gray-700 font-medium text-sm">
-                  Google
-                </Text>
-              </View>
-            </TouchableOpacity>
+<View className="flex-row justify-center space-x-4 mb-8">
+  <TouchableOpacity
+    className="bg-white border border-gray-200 rounded-xl p-4 flex-1 mr-3 shadow-sm"
+    onPress={() => {
+      Toast.show({
+        type: 'info',
+        text1: 'Coming Soon',
+        text2: 'Google login will be available soon',
+        position: 'top',
+      });
+    }}
+    activeOpacity={0.7}
+  >
+    <View className="flex-row items-center justify-center">
+      <Image 
+        source={require('../../assets/images/google.png')} 
+        style={{ width: 20, height: 20 }}
+        resizeMode="contain"
+      />
+      <Text className="ml-2 text-gray-700 font-medium text-sm">
+        Google
+      </Text>
+    </View>
+  </TouchableOpacity>
 
-            <TouchableOpacity
-              className="bg-white border border-gray-200 rounded-xl p-4 flex-1 shadow-sm"
-              onPress={() => {
-                Toast.show({
-                  type: 'info',
-                  text1: 'Coming Soon',
-                  text2: 'Apple login will be available soon',
-                  position: 'top',
-                });
-              }}
-              activeOpacity={0.7}
-            >
-              <View className="flex-row items-center justify-center">
-                <Ionicons name="logo-apple" size={20} color="#000" />
-                <Text className="ml-2 text-gray-700 font-medium text-sm">
-                  Apple
-                </Text>
-              </View>
-            </TouchableOpacity>
-          </View>
+  <TouchableOpacity
+    className="bg-white border border-gray-200 rounded-xl p-4 flex-1 shadow-sm"
+    onPress={() => {
+      Toast.show({
+        type: 'info',
+        text1: 'Coming Soon',
+        text2: 'Apple login will be available soon',
+        position: 'top',
+      });
+    }}
+    activeOpacity={0.7}
+  >
+    <View className="flex-row items-center justify-center">
+      <Image 
+        source={require('../../assets/images/apple-logo.png')} 
+        style={{ width: 20, height: 20 }}
+        resizeMode="contain"
+      />
+      <Text className="ml-2 text-gray-700 font-medium text-sm">
+        Apple
+      </Text>
+    </View>
+  </TouchableOpacity>
+</View>
 
           {/* Sign Up Link */}
           <View className="flex-row justify-center items-center">
